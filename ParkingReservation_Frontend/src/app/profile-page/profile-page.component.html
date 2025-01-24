@@ -1,0 +1,58 @@
+
+<div class="container-xl px-4 mt-4">
+    <!-- Account page navigation-->
+    <nav class="nav nav-borders">
+        <a class="nav-link active ms-0" href="\profile" target="__blank">Profile</a>
+        <a class="nav-link " href="\home" target="__blank">Home</a>
+    </nav>
+    <hr class="mt-0 mb-4">
+    <div class="row">
+        <div class="col-xl-8">
+            <!-- Account details card-->
+            <div class="card mb-4">
+                <div class="card-header">Account Details</div>
+                <div class="card-body">
+                    <form (ngSubmit)="Update()" [formGroup]="profileForm">
+                        <!-- Form Row-->
+                        <div class="row gx-3 mb-3">
+                            <!-- Form Group (first name)-->
+                            <div class="col-md-6">
+                                <label class="small mb-1" for="FirstName">First name</label>
+                                <input class="form-control" id="FirstName" type="text"   formControlName="FirstName">
+                                <div class="text-danger" *ngIf="profileForm.controls['FirstName'].invalid && (isFormSubmitted || profileForm.controls['FirstName'].touched || profileForm.controls['FirstName'].dirty)">
+                                    <span *ngIf="profileForm.controls['FirstName'].errors?.['required']">First Name is requird</span>
+                                  </div>
+                            </div>
+                            <!-- Form Group (last name)-->
+                            <div class="col-md-6">
+                                <label class="small mb-1" for="LastName">Last name</label>
+                                <input class="form-control" id="LastName" type="text"  formControlName="LastName">
+                                <div class="text-danger" *ngIf="profileForm.controls['LastName'].invalid && (isFormSubmitted || profileForm.controls['LastName'].touched || profileForm.controls['LastName'].dirty)">
+                                    <span *ngIf="profileForm.controls['LastName'].errors?.['required']">First Name is requird</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Form Group (email address)-->
+                        <div class="mb-3">
+                            <label class="small mb-1" for="Address">Address</label>
+                            <input class="form-control" id="Address" type="text"  formControlName="Address">
+                        </div>
+                        <!-- Form Row-->
+                        <div class="row gx-3 mb-3">
+                            <!-- Form Group (phone number)-->
+                            <div class="col-md-6">
+                                <label class="small mb-1" for="PhoneNumber">Phone number</label>
+                                <input class="form-control" id="PhoneNumber" type="tel"  formControlName="PhoneNumber">
+                                <div class="text-danger" *ngIf="profileForm.controls['PhoneNumber'].invalid && (isFormSubmitted || profileForm.controls['PhoneNumber'].touched || profileForm.controls['PhoneNumber'].dirty)">
+                                    <span *ngIf="profileForm.controls['PhoneNumber'].errors?.['pattern']">Invalid phone number</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Save changes button-->
+                        <button class="btn btn-primary" type="submit" >Save changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

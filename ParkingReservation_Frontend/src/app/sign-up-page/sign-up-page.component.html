@@ -1,0 +1,57 @@
+
+  <section class="vh-200" style="background-color: #11200e;">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col col-xl-10">
+          <div class="card" style="border-radius: 1rem;">
+            <div class="row g-0">
+              <div class="col-md-6 col-lg-5 d-none d-md-block">
+                <img src="assets\Parking.jpg"
+                  alt="login form" class="img-fluid" style="border-radius: 1rem 0 0 1rem;" />
+              </div>
+              <div class="col-md-6 col-lg-7 d-flex align-items-center">
+                <div class="card-body p-4 p-lg-5 text-black">
+  
+                  <form (ngSubmit)="onSubmit()" [formGroup]="signUpForm">
+  
+                    <div class="d-flex align-items-center mb-3 pb-1">
+                      <i class="fas fa-cubes fa-2x me-3" style="color: #ff6219;"></i>
+                      <span class="h1 fw-bold mb-0">Register</span>
+                    </div>
+                    <div data-mdb-input-init class="form-outline mb-4">
+                      <label class="form-label" for="form2Example17">User Name*</label>
+                      <input type="text" id="form2Example17" class="form-control form-control-lg" formControlName="UserName"  />
+                      <div class="text-danger" *ngIf="signUpForm.controls['UserName'].invalid && (isFormSubmitted || signUpForm.controls['UserName'].touched || signUpForm.controls['UserName'].dirty)">
+                        <span *ngIf="signUpForm.controls['UserName'].errors?.['required']">User Name is requird</span>
+                      </div>
+                    </div>
+
+                    <div data-mdb-input-init class="form-outline mb-4">
+                      <label class="form-label" for="form2Example18">Phone Number*</label>
+                      <input type="text" id="form2Example18" class="form-control form-control-lg" formControlName="PhoneNumber" />
+                      <div class="text-danger" *ngIf="signUpForm.controls['PhoneNumber'].invalid && (isFormSubmitted || signUpForm.controls['PhoneNumber'].touched || signUpForm.controls['PhoneNumber'].dirty)">
+                        <span *ngIf="signUpForm.controls['PhoneNumber'].errors?.['pattern']">Invalid phone number</span>
+                    </div>
+                    </div>
+
+                    <div data-mdb-input-init class="form-outline mb-4">
+                      <label class="form-label" for="form2Example19">Email address*</label>
+                      <input type="email" id="form2Example19" class="form-control form-control-lg" formControlName="email" />
+                      <div class="text-danger" *ngIf="signUpForm.controls['email'].invalid && (isFormSubmitted || signUpForm.controls['email'].touched || signUpForm.controls['email'].dirty)">
+                        <span *ngIf="signUpForm.controls['email'].errors?.['required']">Email is requird</span>
+                        <span *ngIf="signUpForm.controls['email'].errors?.['email']">Email is invalid</span>
+                      </div>
+                    </div>
+                    <div class="pt-1 mb-4">
+                      <button data-mdb-button-init data-mdb-ripple-init class="btn btn-dark btn-lg btn-block" type="submit">Sign Up</button>
+                    </div>
+                  </form>
+  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
