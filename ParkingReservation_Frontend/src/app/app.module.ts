@@ -12,7 +12,6 @@ import { CommonModule } from '@angular/common';
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CookieService } from 'ngx-cookie-service';
-import { ProfilePageComponent } from './profile-page/profile-page.component';
 import { BookingPageComponent } from './booking-page/booking-page.component';
 
 @NgModule({
@@ -21,7 +20,6 @@ import { BookingPageComponent } from './booking-page/booking-page.component';
     LoginPageComponent,
     SignUpPageComponent,
     HomePageComponent,
-    ProfilePageComponent,
     BookingPageComponent
   ],
   imports: [
