@@ -12,11 +12,11 @@ router.get("/user/getUser",verifyToken,getUserData);
 router.post("/addSlot",addSlot);
 router.put("/updateSlot",updateSlot);
 router.get("/getAllSlots",getAllSlots);
-router.get("/getOneSlot",getOneSlot);
+router.post("/getOneSlot",getOneSlot);
 router.delete("/deleteSlot/:id",deleteSlot);
-router.get("/getAvaliableSlots",getAvalibleSlots);
+router.post("/getAvaliableSlots",getAvalibleSlots);
 
-router.post("/addBooking",addBooking);
+router.post("/addBooking",verifyToken,addBooking);
 router.put("/updateBooking",updateBooking);
 router.get("/getAllBookings",getAllBookings);
 router.get("/getOneBooking",getOneBooking);

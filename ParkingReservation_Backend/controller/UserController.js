@@ -296,9 +296,9 @@ export const getAllSlots=async(req,res)=>{
 
 //For Single slot
 export const getOneSlot= async(req,res)=>{
-    let {SlotId}=req.body; //slot id
+    let {SlotName}=req.body; //slot id
     try{
-        const slot= await SlotModel.findOne({where:{SlotId:SlotId}})
+        const slot= await SlotModel.findOne({where:{SlotName:SlotName}})
         if(slot==null){
             return res.status(404).json({message:"User not found"})
         }
@@ -330,7 +330,8 @@ export const deleteSlot=async(req,res)=>{
 
 export const getAvalibleSlots=async(req,res)=>{
     let {start_time,end_time}=req.body;
-    
+    console.log("start_time",start_time)
+    console.log("end_time",end_time)
     try{
         const bookedSlots = await BookingModel.findAll({
             attributes: ['SlotId'],
@@ -360,24 +361,21 @@ export const getAvalibleSlots=async(req,res)=>{
         
           // Extract SlotIds from the query result
           const bookedSlotIds = bookedSlots.map((booking) => booking.SlotId);
-        
+
+          console.log("booked ids",bookedSlotIds)
           // Query available slots
           const availableSlots = await SlotModel.findAll({
             where: {
-              [Sequelize.Op.or]: [
-                { is_available: true },
-                {
-                  SlotId: {
+                SlotId: {
                     [Sequelize.Op.notIn]: bookedSlotIds, // Use the extracted SlotIds
                   },
-                },
-              ],
             },
           });
         
-          console.log(availableSlots);
+          const availableSlotsNames=availableSlots.map((slot) => slot.SlotName)
+          console.log(availableSlotsNames);
           
-          return res.status(200).json(availableSlots);
+          return res.status(200).json(availableSlotsNames);
     }
     catch(error){
         console.log(error)
@@ -391,10 +389,16 @@ export const getAvalibleSlots=async(req,res)=>{
 
 //Adding Booking
 export const addBooking=async(req,res)=>{
-    console.log(req.body);
+    let {SlotId,vehicleNumber,start_time,end_time}=req.body;
+    let UserId=req.user.userId;
 
+    const data={
+        UserId,SlotId,vehicleNumber,start_time,end_time
+    }
+
+    console.log(data);
     try{
-            await BookingModel.create(req.body);
+            await BookingModel.create(data);
             return res.status(201).json({message:"Slot added successfully"})
     }
     catch(error){
