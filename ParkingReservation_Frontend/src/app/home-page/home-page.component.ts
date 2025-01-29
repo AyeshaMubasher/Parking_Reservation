@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { environment } from '../../environments/environment.development';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-home-page',
@@ -15,7 +16,7 @@ export class HomePageComponent  {
   
   public UserName: any;
   public bookings: any;
-  constructor(private router:Router,private http:HttpClient, private cookie:CookieService){}
+  constructor(private router:Router,private http:HttpClient,private toastr: ToastrService, private cookie:CookieService){}
   signOut(){
     this.cookie.delete("token")
     this.router.navigate(["/login"]);
@@ -24,8 +25,6 @@ export class HomePageComponent  {
   ngOnInit(): void{
     this.getUserData();
   }
-
-  
 
   public getUserData(){
     if(this.cookie.check("token")){
@@ -47,5 +46,31 @@ export class HomePageComponent  {
       this.router.navigate(["/login"]);
     }
 
+  }
+
+  public editBooking(bookingId: number){
+    console.log("edit button click by booking id",bookingId)
+  }
+
+  public deleteBooking(bookingId: number){
+    console.log("delete button click by booking id",bookingId)
+
+    const data={
+      BookingId:bookingId
+    }
+    if(this.cookie.check("token")){
+      this.tooken=this.cookie.get("token")
+      console.log("tooken from home ",this.tooken)
+      const headers = new HttpHeaders({
+        'Authorization' : `Bearer ${this.tooken}`
+      })
+      this.http.post(environment.domin+"/deleteBooking",data,{headers}).subscribe((res: any)=>{
+        this.getUserData();
+        this.toastr.success("Successfully Deleted!")
+      })
+      }
+      else{
+        this.router.navigate(["/login"]);
+      }
   }
 }

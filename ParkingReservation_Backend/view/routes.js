@@ -20,7 +20,7 @@ router.post("/addBooking",verifyToken,addBooking);
 router.put("/updateBooking",updateBooking);
 router.get("/getAllBookings",getAllBookings);
 router.get("/getOneBooking",getOneBooking);
-router.delete("/deleteBooking/:id",deleteBooking);
+router.post("/deleteBooking",verifyToken,deleteBooking);
 router.get("/getUserBookings",verifyToken,getUserBookings);
 
 

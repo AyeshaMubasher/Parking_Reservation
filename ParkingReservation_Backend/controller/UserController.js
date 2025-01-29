@@ -599,13 +599,14 @@ export const getOneBooking = async (req, res) => {
 //For deleting Booking
 export const deleteBooking = async (req, res) => {
     let{ BookingId } = req.body;
+    let UserId = req.user.userId;
     try {
         const booking = await BookingModel.findOne({ where: { BookingId: BookingId } })
         if (booking == null) {
             return res.status(404).json({ message: "Booking not found" })
         }
-        //await usr.destroy();
-        await booking.update({ deleted_at: new Date() });
+        await booking.destroy();
+        //await booking.update({ deleted_at: new Date() });
         return res.status(200).json({ message: "deleted successfully" })
     }
     catch (error) {

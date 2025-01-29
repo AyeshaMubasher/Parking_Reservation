@@ -36,7 +36,7 @@
                               <th>Booking Slot</th>
                               <th>Start Time</th>
                               <th>End Time</th>
-                              <th>Status</th>
+
                             </tr>
                           </thead>
                           <tbody class="table-group-divider table-divider-color">
@@ -46,7 +46,10 @@
                               <td>{{ booking.Slot.SlotName }}</td>
                               <td>{{ booking.start_time | date:'short'}}</td>
                               <td>{{ booking.end_time | date:'short'}}</td>
-                              <td>{{ booking.status }}</td>
+                              <td>
+                                <button class="btn btn-warning btn-sm me-2" (click)="editBooking(booking.BookingId)">Edit</button>
+                                <button class="btn btn-danger btn-sm" (click)="deleteBooking(booking.BookingId)">Delete</button>
+                              </td>
                             </tr>
                           </tbody>
                         </table>
