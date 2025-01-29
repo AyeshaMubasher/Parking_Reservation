@@ -71,25 +71,28 @@
                             <!-- Form Group (Slot)-->
                             <div class="col-md-6">
                                 <label for="slot">Available Slots:</label>
-                                <select id="slot" formControlName="slot">
+                                <select id="slot" formControlName="slot" (change)="calculatePrice()">
                                     <option *ngFor="let slot of availableSlots" [value]="slot">{{ slot }}</option>
                                 </select>
                                 <div class="text-danger"
                                     *ngIf="bookingForm.controls['slot'].invalid && (bookingForm.controls['slot'].touched || bookingForm.controls['slot'].dirty)">
-                                    Please select a slot.
+                                    Please click "Get Avaliable Slots" and select a slot.
                                 </div>
                             </div>
+                        </div>
+                        <div *ngIf="selectedSlotPrice > 0" class="col-md-6">
+                            <label>Price per Hour: Rs.{{selectedSlotPrice}} </label>
                         </div>
                         <div class="row gx-3 mb-3">
                             <!-- Form Group (display price)-->
                             <div class="col-md-6">
-                                <label for="price">Estimated Price (Rs):</label>
+                                <label for="price">Total Price (Rs):</label>
                                 <input class="form-control" id="price" type="text" [value]="calculatedPrice" readonly
                                     formControlName="price" />
                             </div>
                         </div>
                         <!-- Save changes button-->
-                        <button class="btn btn-primary" type="submit" >Confirm
+                        <button class="btn btn-primary" type="submit" [disabled]="bookingForm.invalid">Confirm
                             Booking</button>
                     </form>
                 </div>

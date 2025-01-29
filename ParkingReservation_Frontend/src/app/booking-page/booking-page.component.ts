@@ -20,6 +20,8 @@ export class BookingPageComponent {
   public minDateTime: string = "";
   public availableSlots: string[] = [];
   public calculatedPrice: number = 0;
+  public slot: string="";
+  public selectedSlotPrice: number =0;
 
   bookingForm: FormGroup = new FormGroup({
     vehicleNumber: new FormControl('', [Validators.required, Validators.pattern('^[A-Z0-9]{1,15}$')]),
@@ -67,27 +69,24 @@ export class BookingPageComponent {
 
 
   public AddBooking() {
-    console.log(this.bookingForm.value);
-    const isFormValid = this.bookingForm.valid;
-    console.log(!isFormValid)
-    this.isFormSubmitted = !isFormValid;
-    if (isFormValid) {
-      const bookingdata = {
-        SlotId: "",
-        vehicleNumber: this.bookingForm.value.vehicleNumber,
-        start_time: this.formatDateTime(this.bookingForm.value.startTime),
-        end_time: this.formatDateTime(this.bookingForm.value.endTime)
-      }
-
-      const data = {
-        SlotName: this.bookingForm.value.slot
-      }
-      this.http.post(environment.domin + "/getOneSlot", data).subscribe((res: any) => {
-        console.log(res.SlotId);
-        bookingdata.SlotId = res.SlotId;
-        //this.toastr.success("Successfully Updated!")
-        console.log("booking data", bookingdata)
-
+    if (this.calculatedPrice == 0) {
+      this.toastr.error("Please Select the slot befor booking")
+    }
+    else {
+      console.log("Form",this.bookingForm.value);
+      const isFormValid = this.bookingForm.valid;
+      this.isFormSubmitted = !isFormValid;
+      console.log("is Form Valid variable: ",isFormValid)
+      if (isFormValid) {
+        const bookingdata = {
+          SlotName: this.bookingForm.value.slot,
+          vehicleNumber: this.bookingForm.value.vehicleNumber,
+          start_time: this.formatDateTime(this.bookingForm.value.startTime),
+          end_time: this.formatDateTime(this.bookingForm.value.endTime),
+          totalPrice: this.calculatedPrice
+        }
+        console.log("Booking Data",bookingdata)
+        
         this.tooken = this.cookie.get("token")
         console.log("tooken from booking ", this.tooken)
         const headers = new HttpHeaders({
@@ -100,16 +99,10 @@ export class BookingPageComponent {
           console.log(error);
           this.toastr.error("Internal server error")
         })
-      }, (error) => {
-        console.log(error)
-        //this.toastr.error("Internal server error")
-      })
 
-
-
+      }
     }
-    console.log(this.bookingForm.value);
-
+    //console.log(this.bookingForm.value);
   }
 
   //#region Avaliable Slots Handling
@@ -118,22 +111,29 @@ export class BookingPageComponent {
     this.bookingForm.get('startTime')?.valueChanges.pipe(
       debounceTime(500),  // Wait for the user to finish typing (500ms delay)
       switchMap((startTime) => {
-        this.calculatePrice();
+        //this.calculatePrice();
         return of([]);  // Return an observable of an empty array when no valid time is selected
       })
     ).subscribe(slots => {
       this.availableSlots = slots;
+      this.calculatedPrice = 0;
+      this.bookingForm.get('slot')?.setValue("")
     });
 
     this.bookingForm.get('endTime')?.valueChanges.pipe(
       debounceTime(500),
       switchMap((endTime) => {
-        this.calculatePrice();
+        //this.calculatePrice();
         return of([]);  // Return an observable of an empty array when no valid time is selected
       })
     ).subscribe(slots => {
       this.availableSlots = slots;
+      this.calculatedPrice = 0;
+      console.log("slot value before set null", this.bookingForm.value.slot)
+      this.bookingForm.get('slot')?.setValue("")
+      console.log("slot value after set null", this.bookingForm.value.slot)
     });
+
   }
 
   public fetchAvailableSlots() {
@@ -174,24 +174,46 @@ export class BookingPageComponent {
   //#endregion
 
   calculatePrice() {
-    const startTime = this.bookingForm.get('startTime')?.value;
+    //#region get price of selected slot
+    const data = {
+      SlotName: this.bookingForm.value.slot
+    }
+    this.http.post(environment.domin + "/getOneSlot", data).subscribe((res: any) => {
+      console.log("price ", res.price);
+      this.selectedSlotPrice = res.price;
+
+
+      //#region price calculation
+      const startTime = this.bookingForm.get('startTime')?.value;
     const endTime = this.bookingForm.get('endTime')?.value;
 
     if (startTime && endTime) {
+
+      //#region time calculations
       const startDate = new Date(startTime);
       const endDate = new Date(endTime);
 
       // Calculate the difference in minutes
-      const diffInMinutes = (endDate.getTime() - startDate.getTime()) / (1000 * 60); // Time difference in minutes
+      const diffInMinutes = (endDate.getTime() - startDate.getTime()) / (1000 * 60); // Time difference in minute
+      //#endregion
 
       if (diffInMinutes > 0) {
-        this.calculatedPrice = diffInMinutes * 0.5; // Multiply by 0.5 Rs per minute
+        this.calculatedPrice = diffInMinutes * this.selectedSlotPrice;
       } else {
-        this.calculatedPrice = 0; // If the end time is before the start time, set the price to 0
+        this.calculatedPrice = 0;
       }
     } else {
       this.calculatedPrice = 0;
     }
+
+    //#endregion
+      
+    //this.toastr.success("Successfully Updated!")
+    }, (error) => {
+      console.log(error)
+      //this.toastr.error("Internal server error")
+    })
+    //#endregion
   }
 
 }

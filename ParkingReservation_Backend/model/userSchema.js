@@ -51,12 +51,18 @@ export const createSlotModel=async(sequelize)=>{
           },
         SlotName:{
             type:DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+            unique:true
         },
         is_available: {
             type: DataTypes.BOOLEAN,
             defaultValue: true,
-        }
+        },
+        price: { //it will store per minute price 
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 1
+        },
     })
 
     return Slot;
@@ -90,10 +96,17 @@ export const createBookingModel=async(sequelize)=>{
             type: DataTypes.DATE,
             allowNull: false,
           },
+          totalPrice: {  
+            type: DataTypes.INTEGER,
+            allowNull: false, 
+          },
           status: {
             type: DataTypes.STRING,
             defaultValue: 'active',
           },
-    })
+        }, {
+          paranoid: true, // Automatically manages deleted_at field for soft deletes
+        }
+    )
     return Booking;
 }
