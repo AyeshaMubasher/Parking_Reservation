@@ -8,22 +8,27 @@ import { environment } from '../../environments/environment.development';
 import { debounceTime, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { startTimeGreaterThanCurrentTime } from './Validators';
+import { ActivatedRoute } from '@angular/router';
+
 
 @Component({
-  selector: 'app-booking-page',
-  templateUrl: './booking-page.component.html',
-  styleUrl: './booking-page.component.css'
+  selector: 'app-edit-booking-page',
+  templateUrl: './edit-booking-page.component.html',
+  styleUrl: './edit-booking-page.component.css'
 })
-export class BookingPageComponent {
+export class EditBookingPageComponent {
   isFormSubmitted: boolean = false
   public tooken: any;
   public minDateTime: string = "";
   public availableSlots: string[] = [];
   public calculatedPrice: number = 0;
-  public slot: string="";
-  public selectedSlotPrice: number =0;
+  public slot: string = "";
+  public selectedSlotPrice: number = 0;
+  public bookingId: number = 0;
+  isFormLoadExistingDataStartTime: boolean = true
+  isFormLoadExistingDataEndTime: boolean = true
 
-  bookingForm: FormGroup = new FormGroup({
+  editBookingForm: FormGroup = new FormGroup({
     vehicleNumber: new FormControl('', [Validators.required, Validators.pattern('^[A-Z0-9]{1,15}$')]),
     startTime: new FormControl('', [Validators.required, startTimeGreaterThanCurrentTime()]),
     endTime: new FormControl('', [Validators.required]),
@@ -31,12 +36,64 @@ export class BookingPageComponent {
     price: new FormControl('')
   });
 
-  constructor(private router: Router, private http: HttpClient, private cookie: CookieService, private toastr: ToastrService) {
+  constructor(private router: Router, private http: HttpClient, private cookie: CookieService, private toastr: ToastrService, private route: ActivatedRoute) {
+    this.bookingId = +this.route.snapshot.paramMap.get('id')!; // get the Booking Id from the booking class which call this edit 
+    console.log("booking id =", this.bookingId)
+    this.getBooking();
   }
 
   ngOnInit(): void {
     this.setMinDateTime();
     this.getSlotsOnBasesOfTimeSlected()
+  }
+
+  public getBooking() {
+
+    const data = {
+      BookingId: this.bookingId
+    }
+    this.tooken = this.cookie.get("token")
+    console.log("tooken from booking ", this.tooken)
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.tooken}`
+    })
+    this.http.post(environment.domin + "/getOneBooking", data, { headers }).subscribe((res: any) => {
+      console.log(res);
+
+
+      //#region get all avaliable slots 
+      const data2 = {
+        start_time: res.start_time + "",
+        end_time: res.end_time + "",
+        BookingId: this.bookingId
+      }
+      this.http.post(environment.domin + "/getAvaliableSlotsInEdit", data2,).subscribe((res2: any) => {
+        console.log("recived slots", res2);
+        this.availableSlots = res2;
+        //this.toastr.success("Successfully Updated!")
+      }, (error) => {
+        console.log(error)
+        //this.toastr.error("Internal server error")
+      })
+      //#endregion
+
+
+      this.editBookingForm.patchValue({
+        vehicleNumber: res.vehicleNumber,
+        startTime: this.formatDateForDisplay(res.start_time),
+        endTime: this.formatDateForDisplay(res.end_time),
+        slot: res.slotName
+      })
+
+      this.calculatePrice();
+
+      //this.toastr.success("Successfully Updated!")
+    }, (error) => {
+      console.log(error)
+      //this.toastr.error("Internal server error")
+    })
+
+
   }
 
   //#region Time calculations
@@ -65,36 +122,48 @@ export class BookingPageComponent {
 
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   }
+
+  formatDateForDisplay(date: string): string {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    const hours = d.getHours().toString().padStart(2, '0');
+    const minutes = d.getMinutes().toString().padStart(2, '0');
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
   //#endregion
 
 
-  public AddBooking() {
+  public UpdateBooking() {
     if (this.calculatedPrice == 0) {
       this.toastr.error("Please Select the slot befor booking")
     }
     else {
-      console.log("Form",this.bookingForm.value);
-      const isFormValid = this.bookingForm.valid;
+      console.log("Form", this.editBookingForm.value);
+      const isFormValid = this.editBookingForm.valid;
       this.isFormSubmitted = !isFormValid;
-      console.log("is Form Valid variable: ",isFormValid)
+      console.log("is Form Valid variable: ", isFormValid)
       if (isFormValid) {
         const bookingdata = {
-          SlotName: this.bookingForm.value.slot,
-          vehicleNumber: this.bookingForm.value.vehicleNumber,
-          start_time: this.formatDateTime(this.bookingForm.value.startTime),
-          end_time: this.formatDateTime(this.bookingForm.value.endTime),
+          BookingId: this.bookingId,
+          SlotName: this.editBookingForm.value.slot,
+          vehicleNumber: this.editBookingForm.value.vehicleNumber,
+          start_time: this.formatDateTime(this.editBookingForm.value.startTime),
+          end_time: this.formatDateTime(this.editBookingForm.value.endTime),
           totalPrice: this.calculatedPrice
         }
-        console.log("Booking Data",bookingdata)
-        
+        console.log("Booking Data", bookingdata)
+
         this.tooken = this.cookie.get("token")
         console.log("tooken from booking ", this.tooken)
         const headers = new HttpHeaders({
           'Authorization': `Bearer ${this.tooken}`
         })
-        this.http.post(environment.domin + "/addBooking", bookingdata, { headers }).subscribe((res: any) => {
+        this.http.put(environment.domin + "/updateBooking", bookingdata, { headers }).subscribe((res: any) => {
           console.log(res);
-          this.toastr.success("Successfully Booked!")
+          this.toastr.success("Successfully Updated!")
           this.router.navigate(["/home"])
         }, (error) => {
           console.log(error);
@@ -109,39 +178,45 @@ export class BookingPageComponent {
   //#region Avaliable Slots Handling
   public getSlotsOnBasesOfTimeSlected() {
     // Listen for changes in startTime and endTime
-    this.bookingForm.get('startTime')?.valueChanges.pipe(
+    this.editBookingForm.get('startTime')?.valueChanges.pipe(
       debounceTime(500),  // Wait for the user to finish typing (500ms delay)
       switchMap((startTime) => {
         //this.calculatePrice();
         return of([]);  // Return an observable of an empty array when no valid time is selected
       })
     ).subscribe(slots => {
-      this.availableSlots = slots;
-      this.calculatedPrice = 0;
-      this.bookingForm.get('slot')?.setValue("")
+      if (this.isFormLoadExistingDataStartTime == false) {
+        this.availableSlots = slots;
+        this.calculatedPrice = 0;
+        this.selectedSlotPrice=0;
+        this.editBookingForm.get('slot')?.setValue("")
+        }
+      this.isFormLoadExistingDataStartTime = false;
     });
 
-    this.bookingForm.get('endTime')?.valueChanges.pipe(
+    this.editBookingForm.get('endTime')?.valueChanges.pipe(
       debounceTime(500),
       switchMap((endTime) => {
         //this.calculatePrice();
         return of([]);  // Return an observable of an empty array when no valid time is selected
       })
     ).subscribe(slots => {
-      this.availableSlots = slots;
-      this.calculatedPrice = 0;
-      console.log("slot value before set null", this.bookingForm.value.slot)
-      this.bookingForm.get('slot')?.setValue("")
-      console.log("slot value after set null", this.bookingForm.value.slot)
+      if (this.isFormLoadExistingDataEndTime == false) {
+        this.availableSlots = slots;
+        this.calculatedPrice = 0;
+        this.selectedSlotPrice=0;
+        this.editBookingForm.get('slot')?.setValue("")
+      }
+      this.isFormLoadExistingDataEndTime = false;
     });
-
+    
   }
 
   public fetchAvailableSlots() {
     // returns an array of slot names
-    const formattedStartDateTime = this.formatDateTime(this.bookingForm.value.startTime);
+    const formattedStartDateTime = this.formatDateTime(this.editBookingForm.value.startTime);
     console.log("Start Time", formattedStartDateTime);
-    const formattedEndDateTime = this.formatDateTime(this.bookingForm.value.endTime);
+    const formattedEndDateTime = this.formatDateTime(this.editBookingForm.value.endTime);
     console.log("End Time", formattedEndDateTime);
     const data = {
       start_time: formattedStartDateTime + "",
@@ -158,7 +233,7 @@ export class BookingPageComponent {
       console.log("formated end time", formattedEndDateTime)
 
       console.log("data ", data)
-      this.http.post(environment.domin + "/getAvaliableSlots", data,).subscribe((res: any) => {
+      this.http.post(environment.domin + "/getAvaliableSlotsInEdit", data,).subscribe((res: any) => {
         console.log(res);
         this.availableSlots = res;
         //this.toastr.success("Successfully Updated!")
@@ -177,7 +252,7 @@ export class BookingPageComponent {
   calculatePrice() {
     //#region get price of selected slot
     const data = {
-      SlotName: this.bookingForm.value.slot
+      SlotName: this.editBookingForm.value.slot
     }
     this.http.post(environment.domin + "/getOneSlot", data).subscribe((res: any) => {
       console.log("price ", res.price);
@@ -185,36 +260,35 @@ export class BookingPageComponent {
 
 
       //#region price calculation
-      const startTime = this.bookingForm.get('startTime')?.value;
-    const endTime = this.bookingForm.get('endTime')?.value;
+      const startTime = this.editBookingForm.get('startTime')?.value;
+      const endTime = this.editBookingForm.get('endTime')?.value;
 
-    if (startTime && endTime) {
+      if (startTime && endTime) {
 
-      //#region time calculations
-      const startDate = new Date(startTime);
-      const endDate = new Date(endTime);
+        //#region time calculations
+        const startDate = new Date(startTime);
+        const endDate = new Date(endTime);
 
-      // Calculate the difference in minutes
-      const diffInMinutes = (endDate.getTime() - startDate.getTime()) / (1000 * 60); // Time difference in minute
-      //#endregion
+        // Calculate the difference in minutes
+        const diffInMinutes = (endDate.getTime() - startDate.getTime()) / (1000 * 60); // Time difference in minute
+        //#endregion
 
-      if (diffInMinutes > 0) {
-        this.calculatedPrice = diffInMinutes * this.selectedSlotPrice;
+        if (diffInMinutes > 0) {
+          this.calculatedPrice = diffInMinutes * this.selectedSlotPrice;
+        } else {
+          this.calculatedPrice = 0;
+        }
       } else {
         this.calculatedPrice = 0;
       }
-    } else {
-      this.calculatedPrice = 0;
-    }
 
-    //#endregion
-      
-    //this.toastr.success("Successfully Updated!")
+      //#endregion
+
+      //this.toastr.success("Successfully Updated!")
     }, (error) => {
       console.log(error)
       //this.toastr.error("Internal server error")
     })
     //#endregion
   }
-
 }

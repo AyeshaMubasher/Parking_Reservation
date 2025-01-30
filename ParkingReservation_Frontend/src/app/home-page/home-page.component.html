@@ -28,7 +28,11 @@
                 <div class="card-body">
                     <div class="container mt-1">
                         <h3>Your Bookings</h3>
-                        <table class="table">
+                        <div *ngIf="!bookings || bookings.length === 0" >
+                          <p>No previous bookings found. Why not reserve a spot today?</p>
+                          <a routerLink="/booking" class="btn btn-primary">Make a Booking</a>
+                        </div>
+                        <table  *ngIf="bookings && bookings.length > 0" class="table">
                           <thead>
                             <tr>
                               <th>#</th>
@@ -36,7 +40,6 @@
                               <th>Booking Slot</th>
                               <th>Start Time</th>
                               <th>End Time</th>
-
                             </tr>
                           </thead>
                           <tbody class="table-group-divider table-divider-color">
@@ -53,6 +56,7 @@
                             </tr>
                           </tbody>
                         </table>
+
                       </div>
                 </div>
             </div>

@@ -328,6 +328,7 @@ export const deleteSlot = async (req, res) => {
     }
 }
 
+//for adding new record 
 export const getAvalibleSlots = async (req, res) => {
     let { start_time, end_time } = req.body;
     console.log("start_time", start_time)
@@ -383,6 +384,71 @@ export const getAvalibleSlots = async (req, res) => {
     }
 }
 
+export const getAvalibleSlotsInEdit = async (req, res) => {
+    let { start_time, end_time, BookingId } = req.body;
+    console.log("start_time", start_time)
+    console.log("end_time", end_time)
+    try {
+
+        const bookedSlots = await BookingModel.findAll({
+            attributes: ['SlotId'],
+            where: {
+                [Sequelize.Op.and]: [
+                    {
+                        [Sequelize.Op.or]: [
+                            {
+                                start_time: {
+                                    [Sequelize.Op.lt]: end_time,
+                                },
+                                end_time: {
+                                    [Sequelize.Op.gt]: start_time,
+                                },
+                            },
+                            {
+                                start_time: {
+                                    [Sequelize.Op.eq]: start_time,
+                                },
+                            },
+                            {
+                                end_time: {
+                                    [Sequelize.Op.eq]: end_time,
+                                },
+                            },
+                        ],
+                    },
+                    {
+                        BookingId: {
+                            [Sequelize.Op.ne]: BookingId,
+                        },
+                    },
+                ],
+            },
+        });
+
+
+        // Extract SlotIds from the query result
+        const bookedSlotIds = bookedSlots.map((booking) => booking.SlotId);
+
+        console.log("booked ids", bookedSlotIds)
+        // Query available slots
+        const availableSlots = await SlotModel.findAll({
+            where: {
+                SlotId: {
+                    [Sequelize.Op.notIn]: bookedSlotIds, // Use the extracted SlotIds
+                },
+            },
+        });
+
+        const availableSlotsNames = availableSlots.map((slot) => slot.SlotName)
+        console.log(availableSlotsNames);
+
+        return res.status(200).json(availableSlotsNames);
+    }
+    catch (error) {
+        console.log(error)
+        return res.status(500).json({ "error": "Internal server error" })
+    }
+}
 //#endregion
 
 //#region Booking
@@ -392,18 +458,18 @@ export const addBooking = async (req, res) => {
     let { SlotName, vehicleNumber, start_time, end_time, totalPrice } = req.body;
     let UserId = req.user.userId;
 
-    
 
-//#region getting User Data 
+
+    //#region getting User Data 
     const usr = await UserModel.findOne({ where: { UserId: UserId } })
     const email = usr.email;
     const UserName = usr.UserName;
-//#endregion
+    //#endregion
 
-//#region getting SlotId 
+    //#region getting SlotId 
     const slot = await SlotModel.findOne({ where: { SlotName: SlotName } })
     const SlotId = slot.SlotId;
-//#endregion
+    //#endregion
 
     try {
 
@@ -412,8 +478,8 @@ export const addBooking = async (req, res) => {
         }
         console.log(data);
         await BookingModel.create(data);
-        
-        
+
+
         sgMail.setApiKey(process.env.API_KEY);
         const message = {
             to: email,
@@ -549,10 +615,28 @@ export const addBooking = async (req, res) => {
 
 //Update Booking
 export const updateBooking = async (req, res) => {
-    let { BookingId } = req.body;
+    let { BookingId, SlotName, vehicleNumber, start_time, end_time, totalPrice } = req.body;
+    let UserId = req.user.userId;
+
+
+
+    //#region getting User Data 
+    const usr = await UserModel.findOne({ where: { UserId: UserId } })
+    const email = usr.email;
+    const UserName = usr.UserName;
+    //#endregion
+
+    //#region getting SlotId 
+    const slot = await SlotModel.findOne({ where: { SlotName: SlotName } })
+    const SlotId = slot.SlotId;
+    //#endregion
+
     try {
-        console.log("User id to get", BookingId);
-        const booking = await BookingModel.update(req.body, { where: { BookingId: BookingId } })
+        const data = {
+            UserId, SlotId, vehicleNumber, start_time, end_time, totalPrice
+        }
+        console.log("data to be updated:",data)
+        const booking = await BookingModel.update(data, { where: { BookingId: BookingId } })
         console.log("User id result", booking);
         if (booking[0] == 0) {
             return res.status(404).json({ message: "Not found!" })
@@ -580,15 +664,42 @@ export const getAllBookings = async (req, res) => {
     }
 }
 
-//For Single Booking
+//For Single Booking to edit 
 export const getOneBooking = async (req, res) => {
-    let BookingId = req.body; //slot id
+    console.log("get booking body", req.body)
+    let { BookingId } = req.body;
+    let UserId = req.user.userId;
+
+
+    //#region getting User Data 
+    const usr = await UserModel.findOne({ where: { UserId: UserId } })
+    const email = usr.email;
+    const UserName = usr.UserName;
+    //#endregion
+
+
     try {
         const booking = await BookingModel.findOne({ where: { BookingId: BookingId } })
         if (booking == null) {
             return res.status(404).json({ message: "User not found" })
         }
-        return res.status(200).json(slot)
+
+
+
+        //#region getting SlotId 
+        const SlotId = booking.SlotId;
+        const slot = await SlotModel.findOne({ where: { SlotId: SlotId } })
+
+        const data = {
+            vehicleNumber: booking.vehicleNumber,
+            start_time: booking.start_time,
+            end_time: booking.end_time,
+            slotName: slot.SlotName,
+            totalPrice: booking.totalPrice,
+            price: slot.price
+        }
+        //#endregion
+        return res.status(200).json(data)
     }
     catch (error) {
         console.log(error)
@@ -598,7 +709,7 @@ export const getOneBooking = async (req, res) => {
 
 //For deleting Booking
 export const deleteBooking = async (req, res) => {
-    let{ BookingId } = req.body;
+    let { BookingId } = req.body;
     let UserId = req.user.userId;
     try {
         const booking = await BookingModel.findOne({ where: { BookingId: BookingId } })
@@ -628,7 +739,7 @@ export const getUserBookings = async (req, res) => {
             ]
         });
         if (bookings.length == 0) {
-            return res.status(200).json({ "error": "no slot found" })
+            return res.status(404).json({ "error": "no booking found" })
         }
         return res.status(200).json(bookings)
     }

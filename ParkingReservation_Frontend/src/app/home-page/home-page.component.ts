@@ -15,7 +15,7 @@ export class HomePageComponent  {
   public tooken: any;
   
   public UserName: any;
-  public bookings: any;
+  public bookings: any; 
   constructor(private router:Router,private http:HttpClient,private toastr: ToastrService, private cookie:CookieService){}
   signOut(){
     this.cookie.delete("token")
@@ -39,8 +39,13 @@ export class HomePageComponent  {
     })
     this.http.get(environment.domin+"/getUserBookings",{headers}).subscribe((data: any)=>{
       console.log("API responce: ",data);
-      this.bookings=data;
+      if(data!=null){
+        this.bookings=data;
+      }
+    },(error)=>{
+      console.log("error: ",error)
     })
+    
     }
     else{
       this.router.navigate(["/login"]);
@@ -50,6 +55,7 @@ export class HomePageComponent  {
 
   public editBooking(bookingId: number){
     console.log("edit button click by booking id",bookingId)
+    this.router.navigate(['/edit-booking', bookingId]);
   }
 
   public deleteBooking(bookingId: number){

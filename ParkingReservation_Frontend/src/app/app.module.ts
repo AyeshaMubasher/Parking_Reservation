@@ -13,6 +13,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CookieService } from 'ngx-cookie-service';
 import { BookingPageComponent } from './booking-page/booking-page.component';
+import { EditBookingPageComponent } from './edit-booking-page/edit-booking-page.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { BookingPageComponent } from './booking-page/booking-page.component';
     LoginPageComponent,
     SignUpPageComponent,
     HomePageComponent,
-    BookingPageComponent
+    BookingPageComponent,
+    EditBookingPageComponent
   ],
   imports: [
     BrowserModule,

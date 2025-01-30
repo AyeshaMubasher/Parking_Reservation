@@ -1,5 +1,5 @@
 import express from "express";
-import { getAllUsers, addUser, updateUser, deleteUser, checkUser, verifyToken, getUserData,addSlot,updateSlot,getAllSlots,getOneSlot, deleteSlot,getAvalibleSlots, addBooking, updateBooking,getAllBookings,getOneBooking,deleteBooking, getUserBookings } from "../controller/UserController.js";
+import { getAllUsers, addUser, updateUser, deleteUser, checkUser, verifyToken, getUserData,addSlot,updateSlot,getAllSlots,getOneSlot, deleteSlot,getAvalibleSlots, addBooking, updateBooking,getAllBookings,getOneBooking,deleteBooking, getUserBookings, getAvalibleSlotsInEdit } from "../controller/UserController.js";
 const router = express.Router();
 
 router.get("/getAll",getAllUsers);
@@ -15,11 +15,12 @@ router.get("/getAllSlots",getAllSlots);
 router.post("/getOneSlot",getOneSlot);
 router.delete("/deleteSlot/:id",deleteSlot);
 router.post("/getAvaliableSlots",getAvalibleSlots);
+router.post("/getAvaliableSlotsInEdit",getAvalibleSlotsInEdit);
 
 router.post("/addBooking",verifyToken,addBooking);
-router.put("/updateBooking",updateBooking);
+router.put("/updateBooking",verifyToken,updateBooking);
 router.get("/getAllBookings",getAllBookings);
-router.get("/getOneBooking",getOneBooking);
+router.post("/getOneBooking",verifyToken,getOneBooking);
 router.post("/deleteBooking",verifyToken,deleteBooking);
 router.get("/getUserBookings",verifyToken,getUserBookings);
 

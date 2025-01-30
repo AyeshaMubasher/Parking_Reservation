@@ -1,0 +1,102 @@
+<div class="container-xl px-4 mt-4">
+    <!-- Account page navigation-->
+    <nav class="nav nav-borders">
+        <a class="nav-link " href="\home" target="__blank">Home</a>
+        <a class="nav-link " href="\booking" target="__blank">Add Booking</a>
+    </nav>
+    <hr class="mt-0 mb-4">
+    <div class="row">
+        <div class="col-xl-8">
+            <!-- Account details card-->
+            <div class="card mb-4">
+                <div class="card-header">Edit Booking Details</div>
+                <div class="card-body">
+                    <form (ngSubmit)="UpdateBooking()" [formGroup]="editBookingForm">
+                        <!-- Form Row-->
+                        <div class="row gx-3 mb-3">
+                            <!-- Form Group (vehicle number)-->
+                            <div class="col-md-6">
+                                <label class="small mb-1" for="vehicleNumber">Vehicle number</label>
+                                <input class="form-control" id="vehicleNumber" type="text"
+                                    formControlName="vehicleNumber">
+                                <div class="text-danger"
+                                    *ngIf="editBookingForm.controls['vehicleNumber'].invalid && (isFormSubmitted || editBookingForm.controls['vehicleNumber'].touched || editBookingForm.controls['vehicleNumber'].dirty)">
+                                    <span *ngIf="editBookingForm.controls['vehicleNumber'].errors?.['required']">Invalid
+                                        Vehicle Number</span>
+                                    <span *ngIf="editBookingForm.controls['vehicleNumber'].errors?.['pattern']">
+                                        Invalid vehicle number. It should contain only uppercase letters and digits
+                                        (1-15 characters).
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row gx-3 mb-3">
+                            <!-- Form Row-->
+                            <!-- Form Group (Start Time)-->
+                            <div class="col-md-6">
+                                <label class="small mb-1" for="startTime">Start Time</label>
+                                <input class="form-control" id="startTime" type="datetime-local"
+                                    formControlName="startTime" required [attr.min]="minDateTime">
+                                <div class="text-danger"
+                                    *ngIf="editBookingForm.controls['startTime'].invalid && 
+                                (editBookingForm.controls['startTime'].touched || editBookingForm.controls['startTime'].dirty)">
+                                    <span
+                                        *ngIf="editBookingForm.controls['startTime'].errors?.['startTimeGreaterThanCurrentTime']">
+                                        Start time must be greater than the current time.
+                                    </span>
+                                </div>
+                            </div>
+                            <!-- Form Group (End Time)-->
+                            <div class="col-md-6">
+                                <label class="small mb-1" for="endTime">End Time</label>
+                                <input class="form-control" id="endTime" type="datetime-local" formControlName="endTime"
+                                    required [attr.min]="minDateTime">
+                                <div class="text-danger"
+                                    *ngIf="editBookingForm.controls['endTime'].invalid && 
+                                    (editBookingForm.controls['endTime'].touched || editBookingForm.controls['endTime'].dirty)">
+                                    <span *ngIf="editBookingForm.errors?.['startTimeBeforeEndTime']">
+                                        Start time must be before end time.
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row gx-3 mb-3">
+                            <!-- Form Group (Slots)-->
+                            <div class="col-md-6">
+                                <button class="btn btn-primary" type="button" (click)="fetchAvailableSlots()">Get
+                                    Avaliable Slots</button>
+                            </div>
+                        </div>
+                        <div class="row gx-3 mb-3">
+                            <!-- Form Group (Slot)-->
+                            <div class="col-md-6">
+                                <label for="slot">Available Slots:</label>
+                                <select id="slot" formControlName="slot" (change)="calculatePrice()">
+                                    <option *ngFor="let slot of availableSlots" [value]="slot">{{ slot }}</option>
+                                </select>
+                                <div class="text-danger"
+                                    *ngIf="editBookingForm.controls['slot'].invalid && (editBookingForm.controls['slot'].touched || editBookingForm.controls['slot'].dirty)">
+                                    Please click "Get Avaliable Slots" and select a slot.
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="selectedSlotPrice > 0 " class="col-md-6">
+                            <label>Price per Hour: Rs.{{selectedSlotPrice}} </label>
+                        </div>
+                        <div class="row gx-3 mb-3">
+                            <!-- Form Group (display price)-->
+                            <div class="col-md-6">
+                                <label for="price">Total Price (Rs):</label>
+                                <input class="form-control" id="price" type="text" [value]="calculatedPrice" readonly
+                                    formControlName="price" />
+                            </div>
+                        </div>
+                        <!-- Save changes button-->
+                        <button class="btn btn-primary" type="submit" [disabled]="editBookingForm.invalid">Update
+                            Booking</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
