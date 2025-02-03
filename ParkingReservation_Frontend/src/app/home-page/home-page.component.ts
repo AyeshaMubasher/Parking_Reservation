@@ -15,7 +15,7 @@ export class HomePageComponent  {
   public tooken: any;
   
   public UserName: any;
-  public bookings: any; 
+  public bookings: any[] = [];
   constructor(private router:Router,private http:HttpClient,private toastr: ToastrService, private cookie:CookieService){}
   signOut(){
     this.cookie.delete("token")
@@ -41,6 +41,7 @@ export class HomePageComponent  {
       console.log("API responce: ",data);
       if(data!=null){
         this.bookings=data;
+        this.addExpirationStatus();
       }
     },(error)=>{
       console.log("error: ",error)
@@ -51,6 +52,16 @@ export class HomePageComponent  {
       this.router.navigate(["/login"]);
     }
 
+  }
+
+
+  addExpirationStatus() {
+    this.bookings = this.bookings.map(booking => {
+      const bookingStartTime = new Date(booking.start_time);
+      const currentTime = new Date();
+      booking.isExpired = bookingStartTime < currentTime;  // Add the 'isExpired' status
+      return booking;
+    });
   }
 
   public editBooking(bookingId: number){

@@ -43,6 +43,10 @@ export class EditBookingPageComponent {
   }
 
   ngOnInit(): void {
+    if(!(this.cookie.check("token"))){
+      this.router.navigate(["/login"])
+    }
+    
     this.setMinDateTime();
     this.getSlotsOnBasesOfTimeSlected()
   }

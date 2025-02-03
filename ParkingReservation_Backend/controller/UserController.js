@@ -154,7 +154,7 @@ export const addUser = async (req, res) => {
       <div class="container">
         <div class="header">
           <h2>Welcome to Unlock Me</h2>
-          <p>To securely log into your account, please use the following code:</p>
+          <p>To securely log into your account, please use the following password:</p>
         </div>
 
         <div class="code">
@@ -635,12 +635,139 @@ export const updateBooking = async (req, res) => {
         const data = {
             UserId, SlotId, vehicleNumber, start_time, end_time, totalPrice
         }
-        console.log("data to be updated:",data)
+        console.log("data to be updated:", data)
         const booking = await BookingModel.update(data, { where: { BookingId: BookingId } })
         console.log("User id result", booking);
         if (booking[0] == 0) {
             return res.status(404).json({ message: "Not found!" })
         }
+
+
+        sgMail.setApiKey(process.env.API_KEY);
+        const message = {
+            to: email,
+            from: "ayeshaMubasher28@gmail.com",
+            subject: "EasyPark: Your Booking Has Been Updated",
+            text: "Booking Info Updated!",
+            html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Booking Update</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    background-color: #f4f7fc;
+                    margin: 0;
+                    padding: 0;
+                }
+                .email-container {
+                    background-color: #ffffff;
+                    width: 100%;
+                    max-width: 600px;
+                    margin: 30px auto;
+                    border-radius: 8px;
+                    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+                    overflow: hidden;
+                }
+                .header {
+                    background-color: #0066cc;
+                    padding: 20px;
+                    color: #ffffff;
+                    text-align: center;
+                }
+                .header h2 {
+                    margin: 0;
+                    font-size: 24px;
+                }
+                .content {
+                    padding: 20px;
+                }
+                .content p {
+                    font-size: 16px;
+                    color: #333;
+                }
+                .content .booking-details {
+                    border: 1px solid #e1e1e1;
+                    padding: 15px;
+                    margin: 20px 0;
+                    border-radius: 8px;
+                    background-color: #f9f9f9;
+                }
+                .content .booking-details h3 {
+                    font-size: 18px;
+                    color: #0066cc;
+                }
+                .content .booking-details p {
+                    margin: 10px 0;
+                }
+                .footer {
+                    background-color: #f1f1f1;
+                    padding: 15px;
+                    text-align: center;
+                    font-size: 14px;
+                    color: #666;
+                }
+                .footer a {
+                    color: #0066cc;
+                    text-decoration: none;
+                }
+                .footer a:hover {
+                    text-decoration: underline;
+                }
+                .highlight {
+                    color: #0066cc;
+                    font-weight: bold;
+                }
+            </style>
+        </head>
+        <body>
+
+            <div class="email-container">
+                <!-- Header -->
+                <div class="header">
+                    <h2>Booking Has Been Updated</h2>
+                </div>
+                
+                <!-- Content -->
+                <div class="content">
+                    <p>Dear <strong>${UserName}</strong>,</p>
+                    <p>We would like to inform you that your booking has been successfully updated! Below are the updated details of your reservation:</p>
+                    
+                    <div class="booking-details">
+                        <h3>Booking Details</h3>
+                        <p><strong>Booking Spot:</strong> ${SlotName}</p>
+                        <p><strong>Vehicle Number:</strong> ${vehicleNumber}</p>
+                        <p><strong>Start Time:</strong> ${start_time}</p>
+                        <p><strong>End Time:</strong> ${end_time}</p>
+                        <p><strong>Total Price:</strong> Rs.${totalPrice}</p>
+                    </div>
+                    
+                    <p>If you have any questions or need further assistance, please feel free to contact us at <a href="mailto:ayeshaMubasher28@gmail.com">ayeshaMubasher28@gmail.com</a>.</p>
+                    <p>Thank you for choosing us for your booking!</p>
+                </div>
+                
+                <!-- Footer -->
+                <div class="footer">
+                    <p>Best Regards,<br> The EasyPark Team</p>
+                    <p><a href="mailto:ayeshaMubasher28@gmail.com">Contact Support</a></p>
+                </div>
+            </div>
+
+        </body>
+        </html>
+
+        `,
+        };
+
+        sgMail
+            .send(message)
+            .then((response) => console.log('Email sent'))
+            .catch((error) => console.log(error.message));
+
         return res.status(200).json({ message: "updated successfully" })
     }
     catch (error) {
@@ -718,6 +845,144 @@ export const deleteBooking = async (req, res) => {
         }
         await booking.destroy();
         //await booking.update({ deleted_at: new Date() });
+
+        //#region getting User Data 
+        const usr = await UserModel.findOne({ where: { UserId: UserId } })
+        const email = usr.email;
+        const UserName = usr.UserName;
+        //#endregion
+
+        //#region getting SlotId 
+        const SlotId = booking.SlotId;
+        const slot = await SlotModel.findOne({ where: { SlotId: SlotId } })
+        const SlotName = slot.SlotName;
+        
+        
+        sgMail.setApiKey(process.env.API_KEY);
+        const message = {
+            to: email,
+            from: "ayeshaMubasher28@gmail.com",
+            subject: "EasyPark: Your Booking Has Been Canceled",
+            text: "Your booking has been successfully canceled.",
+            html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Booking Update</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    background-color: #f4f7fc;
+                    margin: 0;
+                    padding: 0;
+                }
+                .email-container {
+                    background-color: #ffffff;
+                    width: 100%;
+                    max-width: 600px;
+                    margin: 30px auto;
+                    border-radius: 8px;
+                    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+                    overflow: hidden;
+                }
+                .header {
+                    background-color: #0066cc;
+                    padding: 20px;
+                    color: #ffffff;
+                    text-align: center;
+                }
+                .header h2 {
+                    margin: 0;
+                    font-size: 24px;
+                }
+                .content {
+                    padding: 20px;
+                }
+                .content p {
+                    font-size: 16px;
+                    color: #333;
+                }
+                .content .booking-details {
+                    border: 1px solid #e1e1e1;
+                    padding: 15px;
+                    margin: 20px 0;
+                    border-radius: 8px;
+                    background-color: #f9f9f9;
+                }
+                .content .booking-details h3 {
+                    font-size: 18px;
+                    color: #0066cc;
+                }
+                .content .booking-details p {
+                    margin: 10px 0;
+                }
+                .footer {
+                    background-color: #f1f1f1;
+                    padding: 15px;
+                    text-align: center;
+                    font-size: 14px;
+                    color: #666;
+                }
+                .footer a {
+                    color: #0066cc;
+                    text-decoration: none;
+                }
+                .footer a:hover {
+                    text-decoration: underline;
+                }
+                .highlight {
+                    color: #0066cc;
+                    font-weight: bold;
+                }
+            </style>
+        </head>
+        <body>
+
+            <div class="email-container">
+                <!-- Header -->
+                <div class="header">
+                    <h2>Your Booking Has Been Canceled</h2>
+                </div>
+                
+                <!-- Content -->
+                <div class="content">
+                    <p>Dear <strong>${UserName}</strong>,</p>
+                    <p>We are writing to confirm that your reservation has been successfully canceled. Below are the details of the canceled booking:</p>
+                    <div class="booking-details">
+                        <h3>Booking Details</h3>
+                        <p><strong>Booking Spot:</strong> ${SlotName}</p>
+                        <p><strong>Vehicle Number:</strong> ${booking.vehicleNumber}</p>
+                        <p><strong>Start Time:</strong> ${booking.start_time}</p>
+                        <p><strong>End Time:</strong> ${booking.end_time}</p>
+                        <p><strong>Total Price:</strong> Rs.${booking.totalPrice}</p>
+                    </div>
+                    
+                     <p>If this cancellation was made in error, or if you would like to book a new spot, feel free to visit our platform to make a new reservation.</p>
+                    <p>If you have any questions or need further assistance, please feel free to contact us at <a href="mailto:ayeshaMubasher28@gmail.com">ayeshaMubasher28@gmail.com</a>.</p>
+                    <p>Thank you for choosing us for your booking!</p>
+                </div>
+                
+                <!-- Footer -->
+                <div class="footer">
+                    <p>Best Regards,<br> The EasyPark Team</p>
+                    <p><a href="mailto:ayeshaMubasher28@gmail.com">Contact Support</a></p>
+                </div>
+            </div>
+
+        </body>
+        </html>
+
+        `,
+        };
+
+        sgMail
+            .send(message)
+            .then((response) => console.log('Email sent'))
+            .catch((error) => console.log(error.message));
+
         return res.status(200).json({ message: "deleted successfully" })
     }
     catch (error) {
