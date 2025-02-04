@@ -71,9 +71,9 @@ Before starting the setup, make sure you have the following installed:
         API_KEY=your_sendgrid_api_key
         JWT_Secret_Key=your_jwt_secret_key
         Host=localhost
-        DATABASE=Parking_Reservation_System
-        USER_NAME=postgres
-        PASSWORD=9697
+        DATABASE=Database_you_have_created
+        USER_NAME=Username_Of_Sequalize_Database
+        PASSWORD=Your_DataBase_Password
         ```
 
 5. Run the backend:
