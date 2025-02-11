@@ -135,6 +135,8 @@ export const createSlotModel=async(sequelize)=>{
           allowNull: false,
           defaultValue: 1
         },
+    }, {
+      paranoid: true, // Automatically manages deleted_at field for soft deletes
     })
 
     return Slot;

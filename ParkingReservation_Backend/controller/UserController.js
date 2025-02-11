@@ -226,7 +226,23 @@ export const updateUser = async (req, res) => {
             return res.status(404).json({ message: "Not found!" })
         }
         if(Role=="admin"){
-            
+            const email=exsistingUsr.email;
+            sgMail.setApiKey(process.env.API_KEY);
+
+            const emailBody = await renderEmailTemplateUpdateUser({ UserName });
+        
+            const message = {
+                to: email,
+                from: 'ayeshaMubasher28@gmail.com',
+                subject: 'EasyPark: You Have Been Granted Admin Rights',
+                text: 'You have been granted Admin Rights!',
+                html: emailBody,
+            };
+        
+            sgMail
+                .send(message)
+                .then((response) => console.log('Admin rights email sent'))
+                .catch((error) => console.log(error.message));
         }
         return res.status(200).json({ message: "updated successfully" })
     }
@@ -235,6 +251,14 @@ export const updateUser = async (req, res) => {
         return res.status(500).json({ "error": "Internal server error" })
     }
 }
+const renderEmailTemplateUpdateUser = async (data) => {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    const templatePath = path.join(__dirname, 'views', 'adminRights.ejs');
+    const emailBody = await ejs.renderFile(templatePath, data);
+
+    return emailBody;
+};
 
 export const deleteUser = async (req, res) => {
     let UserId = req.params.id;
