@@ -34,6 +34,22 @@ export const verifyToken = async (req, res, next) => {
     }
 }
 
+export const verifyAdmin = async (req, res) => {
+    let UserId = req.user.userId;
+    try {
+        const usr = await UserModel.findOne({ where: { UserId: UserId } })
+        if (usr.RoleId == 1 || usr.RoleId == 2) {
+            return res.status(200).json({ message: "This account has admin rights" })
+        }
+        else {
+            return res.status(401).json({ "error": "This is a user account" })
+        }
+    }
+    catch (error) {
+        console.log(error)
+        return res.status(500).json({ "error": "Internal server error" })
+    }
+}
 
 //#region User data
 //used in home page and edit profile page 
@@ -42,7 +58,7 @@ export const getAllUsers = async (req, res) => {
     try {
         //const users = await UserModel.findAll();
         const excludedUserIds = [1, UserId]
-        console.log("user ides to exclude",excludedUserIds)
+        console.log("user ides to exclude", excludedUserIds)
         const usersWithRoles = await UserModel.findAll({
             where: {
                 UserId: {
@@ -52,7 +68,7 @@ export const getAllUsers = async (req, res) => {
             include: {
                 model: RoleModel,
                 attributes: ['RoleId', 'RoleName'],  // Specify the columns you need from the Role model
-              },
+            },
         });
 
         if (usersWithRoles.length == 0) {
@@ -98,7 +114,7 @@ export const getUserData = async (req, res) => {
     console.log("User Id", UserId)
     try {
         const usr = await UserModel.findOne({ where: { UserId: UserId } })
-        console.log("user: ",usr)
+        console.log("user: ", usr)
         if (usr == null) {
             return res.status(404).json({ message: "User not found" })
         }
@@ -111,11 +127,11 @@ export const getUserData = async (req, res) => {
 }
 
 export const getOneUser = async (req, res) => {
-    let {UserId} = req.body;
+    let { UserId } = req.body;
     console.log("User Id", UserId)
     try {
         const usr = await UserModel.findOne({ where: { UserId: UserId } })
-        console.log("user: ",usr)
+        console.log("user: ", usr)
         if (usr == null) {
             return res.status(404).json({ message: "User not found" })
         }
@@ -186,7 +202,7 @@ const renderEmailTemplateAddUser = async (password) => {
 
 //used in profile 
 export const updateUser = async (req, res) => {
-    let {UserId,UserName,Role} = req.body;
+    let { UserId, UserName, Role } = req.body;
     try {
 
         const role = await RoleModel.findOne({ where: { RoleName: Role } })
@@ -194,20 +210,23 @@ export const updateUser = async (req, res) => {
         const exsistingUsr = await UserModel.findOne({ where: { UserId: UserId } })
 
 
-        const data={
-            UserName:UserName,
-            RoleId:role.RoleId,
-            email:exsistingUsr.email,
-            password:exsistingUsr.password,
-            PhoneNumber:exsistingUsr.PhoneNumber
+        const data = {
+            UserName: UserName,
+            RoleId: role.RoleId,
+            email: exsistingUsr.email,
+            password: exsistingUsr.password,
+            PhoneNumber: exsistingUsr.PhoneNumber
         }
         console.log("User id to get", UserId);
 
-        console.log("data for update",data)
+        console.log("data for update", data)
         const usr = await UserModel.update(data, { where: { UserId: UserId } })
         console.log("User id result", usr);
         if (usr[0] == 0) {
             return res.status(404).json({ message: "Not found!" })
+        }
+        if(Role=="admin"){
+            
         }
         return res.status(200).json({ message: "updated successfully" })
     }
@@ -260,7 +279,7 @@ export const addSlot = async (req, res) => {
 
 //Update slot
 export const updateSlot = async (req, res) => {
-    console.log("update slot is called with data ",req.body)
+    console.log("update slot is called with data ", req.body)
     let { SlotId } = req.body;
     try {
         console.log("User id to get", SlotId);
@@ -841,7 +860,7 @@ const renderEmailTemplateDeleteBooking = async (data) => {
 
 export const getUserBookings = async (req, res) => {
     let UserId = req.user.userId;
-    console.log("get bookings with id",UserId)
+    console.log("get bookings with id", UserId)
     try {
         const bookings = await BookingModel.findAll({
             where: { UserId: UserId },
@@ -853,7 +872,7 @@ export const getUserBookings = async (req, res) => {
             ]
         });
         if (bookings.length == 0) {
-            return res.status(404).json({ message: "Booking not found"})
+            return res.status(404).json({ message: "Booking not found" })
         }
         return res.status(200).json(bookings)
     }
@@ -906,7 +925,8 @@ export const getAllRoles = async (req, res) => {
                 RoleId: {
                     [Sequelize.Op.ne]: 1  // Ensure UserId is not equal to 1
                 }
-        }})
+            }
+        })
         const Roles = role.map((role) => role.RoleName)
         console.log(Roles);
         return res.status(200).json(Roles)

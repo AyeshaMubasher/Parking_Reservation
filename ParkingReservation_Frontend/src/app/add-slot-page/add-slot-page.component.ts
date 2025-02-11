@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
@@ -13,9 +13,27 @@ import { environment } from '../../environments/environment.development';
   styleUrl: './add-slot-page.component.css'
 })
 export class AddSlotPageComponent {
+  public tooken: any;
   isFormSubmitted: boolean = false
   slotForm: FormGroup;
   constructor(private router: Router, private http: HttpClient, private toastr: ToastrService, private cookie: CookieService) {
+    if (!(this.cookie.check("token"))) {
+      this.router.navigate(["/login"])
+    }
+    else {
+      if (this.cookie.check("token")) {
+        this.tooken = this.cookie.get("token")
+        console.log("tooken from home ", this.tooken)
+        const headers = new HttpHeaders({
+          'Authorization': `Bearer ${this.tooken}`
+        })
+        this.http.get(environment.domin + "/verifyAdmin", { headers }).subscribe((res: any) => {
+          console.log(res)
+        }, (error) => {
+          this.router.navigate(["/home"])
+        })
+      }
+    }
     this.slotForm = new FormGroup({
       SlotName: new FormControl("", [Validators.required]),
       price: new FormControl("", [Validators.required])
@@ -23,9 +41,6 @@ export class AddSlotPageComponent {
   }
 
   ngOnInit(): void {
-    if (!(this.cookie.check("token"))) {
-      this.router.navigate(["/login"])
-    }
 
   }
 
