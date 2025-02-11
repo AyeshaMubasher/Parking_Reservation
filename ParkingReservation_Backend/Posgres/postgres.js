@@ -1,13 +1,14 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import { Sequelize } from "sequelize";
-import { createUserModel,createSlotModel,createBookingModel } from "../model/userSchema.js";
+import { createRolesModel,createUserModel,createSlotModel,createBookingModel } from "../model/userSchema.js";
 
 const sequelize = new Sequelize(process.env.DATABASE, process.env.USER_NAME, process.env.PASSWORD, {
     host: process.env.Host,
     dialect: 'postgres'
   });
 
+  let RoleModel=null;
   let UserModel=null;
   let SlotModel=null;
   let BookingModel=null;
@@ -15,7 +16,9 @@ const sequelize = new Sequelize(process.env.DATABASE, process.env.USER_NAME, pro
     try {
         await sequelize.authenticate();
         console.log('Connection has been established successfully.');
-        UserModel= await createUserModel(sequelize)
+        RoleModel= await createRolesModel(sequelize)
+        await sequelize.sync();
+        UserModel= await createUserModel(sequelize, RoleModel)
         await sequelize.sync();
         SlotModel= await createSlotModel(sequelize)
         await sequelize.sync();
@@ -26,10 +29,12 @@ const sequelize = new Sequelize(process.env.DATABASE, process.env.USER_NAME, pro
 
     console.log('Database synchronized');
 
-    // Optionally, you can add associations here if needed
+    RoleModel.hasMany(UserModel, {foreignKey: 'RoleId'})
+    UserModel.belongsTo(RoleModel, { foreignKey: 'RoleId' });
     UserModel.hasMany(BookingModel, { foreignKey: 'UserId' });
     SlotModel.hasMany(BookingModel, { foreignKey: 'SlotId' });
     BookingModel.belongsTo(SlotModel, { foreignKey: 'SlotId' });
+    
 
 
         console.log("Database Synced")
@@ -42,5 +47,6 @@ const sequelize = new Sequelize(process.env.DATABASE, process.env.USER_NAME, pro
     connection,
     UserModel,
     SlotModel,
-    BookingModel
+    BookingModel,
+    RoleModel
   }

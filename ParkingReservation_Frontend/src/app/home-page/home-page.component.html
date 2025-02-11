@@ -3,6 +3,9 @@
   <nav class="nav nav-borders">
     <a class="nav-link active ms-0" href="\home" target="__blank">Home</a>
     <a class="nav-link " href="\booking" target="__blank">Add Booking</a>
+    <div *ngIf="Role === 'super admin' || Role === 'admin' ">
+      <a class="nav-link " href="\addSlot" target="__blank">Add Slot</a>
+    </div>
     <div class="d-flex align-items-center">
       <button class="btn btn-primary me-3" type="button" (click)="signOut()">SignOut</button>
     </div>
@@ -17,8 +20,21 @@
           <img class="img-account-profile rounded-circle mb-2" src="http://bootdey.com/img/Content/avatar/avatar1.png"
             alt="">
           <!-- Profile picture help block-->
-          <div class="small font-italic text-muted mb-4">{{UserName}}</div>
+          <div class="small font-italic text-muted mb-4">User Name: {{UserName}}</div>
+          <div class="small font-italic text-muted mb-4">Role: {{Role}}</div>
 
+          <!-- Buttons to toggle between Bookings, Users, and Slots tables -->
+          <div *ngIf="Role === 'super admin' || Role === 'admin' ">
+            <div class="small font-italic text-muted mb-3">
+        <button class="btn btn-primary" (click)="showBookingsTable()">Show Bookings</button>
+      </div>
+      <div class="small font-italic text-muted mb-3">
+        <button class="btn btn-primary" (click)="showUsersTable()">Show Users</button>
+      </div>
+      <div class="small font-italic text-muted mb-3">
+        <button class="btn btn-primary" (click)="showSlotsTable()">Show Slots</button>
+      </div>
+          </div>
         </div>
       </div>
     </div>
@@ -27,41 +43,108 @@
       <div class="card mb-4">
         <div class="card-body">
           <div class="container mt-1">
-            <h3>Your Bookings</h3>
-            <div *ngIf="!bookings || bookings.length === 0">
-              <p>No previous bookings found. Why not reserve a spot today?</p>
-              <a routerLink="/booking" class="btn btn-primary">Make a Booking</a>
-            </div>
-            <table *ngIf="bookings && bookings.length > 0" class="table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Vehicle Name</th>
-                  <th>Booking Slot</th>
-                  <th>Start Time</th>
-                  <th>End Time</th>
-                </tr>
-              </thead>
-              <tbody class="table-group-divider table-divider-color">
-                <tr *ngFor="let booking of bookings">
-                  <td></td>
-                  <td>{{ booking.vehicleNumber }}</td>
-                  <td>{{ booking.Slot.SlotName }}</td>
-                  <td>{{ booking.start_time | date:'short'}}</td>
-                  <td>{{ booking.end_time | date:'short'}}</td>
-                  <td>
-                    <ng-container *ngIf="!booking.isExpired; else expired">
-                      <button class="btn btn-warning btn-sm me-2" (click)="editBooking(booking.BookingId)">Edit</button>
-                      <button class="btn btn-danger btn-sm" (click)="deleteBooking(booking.BookingId)">Delete</button>
-                    </ng-container>
-                    <ng-template #expired>
-                      <span class="text-danger">Expired</span>
-                    </ng-template>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
 
+            <!-- Display Bookings table when currentView is 'bookings' -->
+            <div *ngIf="currentView === 'bookings'">
+              <h3>Your Bookings</h3>
+              <div *ngIf="!bookings || bookings.length === 0">
+                <p>No previous bookings found. Why not reserve a spot today?</p>
+                <a routerLink="/booking" class="btn btn-primary">Make a Booking</a>
+              </div>
+              <table *ngIf="bookings && bookings.length > 0" class="table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Vehicle Name</th>
+                    <th>Booking Slot</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                  </tr>
+                </thead>
+                <tbody class="table-group-divider table-divider-color">
+                  <tr *ngFor="let booking of bookings">
+                    <td></td>
+                    <td>{{ booking.vehicleNumber }}</td>
+                    <td>{{ booking.Slot.SlotName }}</td>
+                    <td>{{ booking.start_time | date:'short' }}</td>
+                    <td>{{ booking.end_time | date:'short' }}</td>
+                    <td>
+                      <ng-container *ngIf="!booking.isExpired; else expired">
+                        <button class="btn btn-warning btn-sm me-2"
+                          (click)="editBooking(booking.BookingId)">Edit</button>
+                        <button class="btn btn-danger btn-sm" (click)="deleteBooking(booking.BookingId)">Delete</button>
+                      </ng-container>
+                      <ng-template #expired>
+                        <span class="text-danger">Expired</span>
+                      </ng-template>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Display Users table when currentView is 'users' -->
+            <div *ngIf="currentView === 'users'">
+              <h3>Users List</h3>
+              <div *ngIf="!users || users.length === 0">
+                <p>No User have been registered</p>
+              </div>
+              <table *ngIf="users && users.length > 0" class="table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>User Name</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Role</th>
+                  </tr>
+                </thead>
+                <tbody class="table-group-divider table-divider-color">
+                  <tr *ngFor="let user of users">
+                    <td></td>
+                    <td>{{ user.UserName }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.PhoneNumber}}</td>
+                    <td>{{ user.Role.RoleName }}</td>
+                    <td>
+                      <button class="btn btn-warning btn-sm me-2"
+                      (click)="editUser(user.UserId)">Edit</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Display Slots table when currentView is 'slots' -->
+            <div *ngIf="currentView === 'slots'">
+              <h3>Slots List</h3>
+              <div *ngIf="!slots || slots.length === 0">
+                <p>Currently, there are no available slots for booking. 
+                  Please add new slots to enable users to make bookings.</p>
+                <a routerLink="/addSlot" class="btn btn-primary">Make a slot</a>
+              </div>
+              <table *ngIf="slots && slots.length > 0" class="table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Slot Name</th>
+                    <th>Slot Price</th>
+                  </tr>
+                </thead>
+                <tbody class="table-group-divider table-divider-color">
+                  <tr *ngFor="let slot of slots">
+                    <td></td>
+                    <td>{{ slot.SlotName }}</td>
+                    <td>{{ slot.price }}</td>
+                    <td>
+                      <button class="btn btn-warning btn-sm me-2"
+                      (click)="editSlot(slot.SlotId)">Edit</button>
+                      <button class="btn btn-danger btn-sm" (click)="deleteSlot(slot.SlotId)">Delete</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

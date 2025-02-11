@@ -1,0 +1,47 @@
+<div class="container-xl px-4 mt-4">
+    <!-- Account page navigation-->
+    <nav class="nav nav-borders">
+        <a class="nav-link " href="\home" target="__blank">Home</a>
+        <a class="nav-link " href="\booking" target="__blank">Add Booking</a>
+        <a class="nav-link " href="\addSlot" target="__blank">Add Slot</a>
+    </nav>
+    <hr class="mt-0 mb-4">
+    <div class="row">
+        <div class="col-xl-8">
+            <!-- Account details card-->
+            <div class="card mb-4">
+                <div class="card-header">Uder Details</div>
+                <div class="card-body">
+                    <form (ngSubmit)="EditUser()" [formGroup]="editUserForm">
+                        <!-- Form Row-->
+                        <div class="row gx-3 mb-3">
+                            <!-- Form Group (user name)-->
+                            <div class="col-md-6">
+                                <label class="small mb-1" for="UserName">Slot Name</label>
+                                <input class="form-control" id="UserName" type="text"
+                                    formControlName="UserName">
+                                <div class="text-danger"
+                                    *ngIf="editUserForm.controls['UserName'].invalid && (isFormSubmitted || editUserForm.controls['UserName'].touched || editUserForm.controls['UserName'].dirty)">
+                                    <span *ngIf="editUserForm.controls['UserName'].errors?.['required']">User Name is required</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row gx-3 mb-3">
+                            <!-- Form Group (user role)-->
+                            <div class="col-md-6">
+                                <label for="slot">Role:</label>
+                                <select id="slot" formControlName="role" >
+                                    <option *ngFor="let role of avaliableRoles" [value]="role">{{ role }}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Save changes button-->
+                        <button class="btn btn-primary" type="submit" [disabled]="editUserForm.invalid">Edit User</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

@@ -14,6 +14,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CookieService } from 'ngx-cookie-service';
 import { BookingPageComponent } from './booking-page/booking-page.component';
 import { EditBookingPageComponent } from './edit-booking-page/edit-booking-page.component';
+import { EditSlotPageComponent } from './edit-slot-page/edit-slot-page.component';
+import { AddSlotPageComponent } from './add-slot-page/add-slot-page.component';
+import { EditUserPageComponent } from './edit-user-page/edit-user-page.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +25,10 @@ import { EditBookingPageComponent } from './edit-booking-page/edit-booking-page.
     SignUpPageComponent,
     HomePageComponent,
     BookingPageComponent,
-    EditBookingPageComponent
+    EditBookingPageComponent,
+    EditSlotPageComponent,
+    AddSlotPageComponent,
+    EditUserPageComponent
   ],
   imports: [
     BrowserModule,

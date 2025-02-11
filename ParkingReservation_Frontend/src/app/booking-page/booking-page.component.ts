@@ -101,7 +101,15 @@ export class BookingPageComponent {
           this.router.navigate(["/home"])
         }, (error) => {
           console.log(error);
-          this.toastr.error("Internal server error")
+          if(error.status==401){
+            this.toastr.error("This Slot just now booked by another person please select a other slot");
+            this.availableSlots = [];
+            this.selectedSlotPrice=0;
+            this.calculatedPrice = 0;
+            this.bookingForm.get('slot')?.setValue("")
+          }else{
+            this.toastr.error("Internal server error")
+          }
         })
 
       }
@@ -120,6 +128,7 @@ export class BookingPageComponent {
       })
     ).subscribe(slots => {
       this.availableSlots = slots;
+      this.selectedSlotPrice=0;
       this.calculatedPrice = 0;
       this.bookingForm.get('slot')?.setValue("")
     });
@@ -132,6 +141,7 @@ export class BookingPageComponent {
       })
     ).subscribe(slots => {
       this.availableSlots = slots;
+      this.selectedSlotPrice=0;
       this.calculatedPrice = 0;
       console.log("slot value before set null", this.bookingForm.value.slot)
       this.bookingForm.get('slot')?.setValue("")

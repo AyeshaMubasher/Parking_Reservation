@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 600px;
+            margin: 30px auto;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background-color: #0066cc;
+            padding: 20px;
+            color: #ffffff;
+            text-align: center;
+        }
+        .header h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 20px;
+        }
+        .content p {
+            font-size: 16px;
+            color: #333;
+        }
+        .content .booking-details {
+            border: 1px solid #e1e1e1;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .content .booking-details h3 {
+            font-size: 18px;
+            color: #0066cc;
+        }
+        .content .booking-details p {
+            margin: 10px 0;
+        }
+        .footer {
+            background-color: #f1f1f1;
+            padding: 15px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+        .footer a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        .highlight {
+            color: #0066cc;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <h2>Booking Confirmation</h2>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <p>Dear <strong><%= UserName %></strong>,</p>
+            <p>We are excited to inform you that your booking has been successfully confirmed! Below are the details of your reservation:</p>
+            
+            <div class="booking-details">
+                <h3>Booking Details</h3>
+                <p><strong>Booking Spot:</strong> <%= SlotName %></p>
+                <p><strong>Vehicle Number:</strong> <%= vehicleNumber %></p>
+                <p><strong>Start Time:</strong> <%= start_time %></p>
+                <p><strong>End Time:</strong> <%= end_time %></p>
+                <p><strong>Total Price:</strong> Rs.<%= totalPrice %></p>
+            </div>
+            
+            <p>If you have any questions or need further assistance, please feel free to contact us at <a href="mailto:ayeshaMubasher28@gmail.com">ayeshaMubasher28@gmail.com</a>.</p>
+            <p>Thank you for choosing us for your booking!</p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>Best Regards,<br> The EasyPark Team</p>
+            <p><a href="mailto:ayeshaMubasher28@gmail.com">Contact Support</a></p>
+        </div>
+    </div>
+
+</body>
+</html>

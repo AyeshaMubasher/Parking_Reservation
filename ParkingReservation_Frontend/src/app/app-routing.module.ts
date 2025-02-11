@@ -5,13 +5,19 @@ import { LoginPageComponent } from './login-page/login-page.component';
 import { HomePageComponent } from './home-page/home-page.component';
 import { BookingPageComponent } from './booking-page/booking-page.component';
 import { EditBookingPageComponent } from './edit-booking-page/edit-booking-page.component';
+import { AddSlotPageComponent } from './add-slot-page/add-slot-page.component';
+import { EditSlotPageComponent } from './edit-slot-page/edit-slot-page.component';
+import { EditUserPageComponent } from './edit-user-page/edit-user-page.component';
 
 const routes: Routes = [
   {path:'login',component:LoginPageComponent},
   {path: 'home',component:HomePageComponent},
   {path: 'signUp',component:SignUpPageComponent},
   {path: 'booking',component:BookingPageComponent},
-  { path: 'edit-booking/:id',component:EditBookingPageComponent },
+  {path: 'edit-booking/:id',component:EditBookingPageComponent},
+  {path: 'addSlot',component:AddSlotPageComponent},
+  {path: 'edit-slot/:id',component:EditSlotPageComponent},
+  {path: 'edit-user/:id',component:EditUserPageComponent},
   {path:'',component:LoginPageComponent}
 ];
 

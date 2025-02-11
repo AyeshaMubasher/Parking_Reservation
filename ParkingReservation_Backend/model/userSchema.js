@@ -1,13 +1,47 @@
 
 import { DataTypes } from "sequelize";
+import bcrypt from 'bcrypt'
 
-export const createUserModel=async(sequelize)=>{
+export const createRolesModel=async(sequelize)=>{
+  const Role=sequelize.define('Role',{
+    RoleId: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    RoleName:{
+      type:DataTypes.STRING,
+      allowNull: false,
+      unique:true
+  }
+  })
+
+  // After the table is created, insert default roles
+  Role.afterSync(async () => {
+    const roles = ['super admin', 'admin', 'user'];
+
+    for (let role of roles) {
+      await Role.findOrCreate({
+        where: { RoleName: role }
+      });
+    }
+  });
+
+  return Role;
+}
+
+export const createUserModel=async(sequelize, Role)=>{
 
     const User=sequelize.define('User' , {
         UserId: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
+          },
+          RoleId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 3
           },
         UserName:{
             type:DataTypes.STRING,
@@ -17,7 +51,15 @@ export const createUserModel=async(sequelize)=>{
             type:DataTypes.STRING,
             allowNull: false,
             isLowercase:true,
-            unique:true
+            unique:true,
+            validate: {
+              isEmail: {
+                msg: "Please provide a valid email address"
+              },
+              notEmpty: {
+                msg: "Email is required"
+              }
+            }
         },
         password:{
             type:DataTypes.STRING,
@@ -34,12 +76,46 @@ export const createUserModel=async(sequelize)=>{
         },
         PhoneNumber:{
             type:DataTypes.STRING,
-            allowNull: true
+            allowNull: true,
+            validate: {
+              // Regular expression to validate phone number format
+              is: {
+                args: [/^\+?\d{10,15}$/], // Example: Optional country code + 10-digit phone number
+                msg: "Please provide a valid phone number (e.g., +1234567890 or 1234567890)"
+              }
+            }
         }
+        
     })
+
+    // After syncing the models, create a super admin user
+  User.afterSync(async () => {
+    const superAdminRole = await Role.findOne({ where: { RoleName: 'super admin' } });
+    if (!superAdminRole) {
+      console.log("Super admin role not found");
+      return;
+    }
+    const superAdminEmail = 'ayeshajohri28@gmail.com';
+    const superAdminPassword = 'admin'; // Replace this with a secure password
+
+    // Hash password for super admin
+    const hashedPassword = await bcrypt.hash(superAdminPassword, 10);
+
+    await User.findOrCreate({
+      where: { email: superAdminEmail },
+      defaults: {
+        UserName: 'Super Admin',
+        email: superAdminEmail,
+        password: hashedPassword,
+        RoleId: superAdminRole.RoleId
+      }
+    });
+  });
+
 
     return User;
 }
+
 
 export const createSlotModel=async(sequelize)=>{
 
@@ -53,10 +129,6 @@ export const createSlotModel=async(sequelize)=>{
             type:DataTypes.STRING,
             allowNull: false,
             unique:true
-        },
-        is_available: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: true,
         },
         price: { //it will store per minute price 
           type: DataTypes.INTEGER,
@@ -86,7 +158,16 @@ export const createBookingModel=async(sequelize)=>{
           },
           vehicleNumber:{
             type:DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+            validate: {
+              is: {
+                args: [/^[A-Z0-9]{1,15}$/],
+                msg: "Vehicle number should be between 1 to 15 characters and contain only uppercase letters and numbers (e.g., ABC123)."
+              },
+              notEmpty: {
+                msg: "Vehicle number is required."
+              }
+            }
           },
           start_time: { //stores both date and time
             type: DataTypes.DATE,
