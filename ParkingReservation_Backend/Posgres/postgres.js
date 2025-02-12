@@ -1,8 +1,10 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import { Sequelize } from "sequelize";
-import { createRolesModel,createUserModel,createSlotModel,createBookingModel } from "../model/userSchema.js";
-
+import { createRolesModel} from "../model/roleSchema.js";
+import { createUserModel} from "../model/userSchema.js";
+import { createSlotModel} from "../model/slotSchema.js";
+import { createBookingModel} from "../model/bookingSchema.js";
 const sequelize = new Sequelize(process.env.DATABASE, process.env.USER_NAME, process.env.PASSWORD, {
     host: process.env.Host,
     dialect: 'postgres'

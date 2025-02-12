@@ -1,5 +1,8 @@
 import express from "express";
-import { getAllUsers, addUser,updateUserRights, updateUser, updatePassword, deleteUser, checkUser, verifyToken, getUserData,addSlot,updateSlot,getAllSlots,getOneSlot, deleteSlot,getAvalibleSlots, addBooking, updateBooking,getAllBookings,getOneBooking,deleteBooking, getUserBookings, getAvalibleSlotsInEdit, getOneRole, getOneSlotWithId,getOneUser,getAllRoles,verifyAdmin } from "../controller/UserController.js";
+import { verifyAdmin, verifyToken, getAllUsers, addUser,updateUserRights, updateUser,updatePassword,deleteUser,checkUser,getUserData,getOneUser} from "../controller/UserController.js";
+import { getOneRole,getAllRoles} from "../controller/RoleController.js"
+import { addSlot ,updateSlot,getAllSlots,getOneSlot,getOneSlotWithId,deleteSlot,getAvalibleSlots,getAvalibleSlotsInEdit} from "../controller/SlotController.js"
+import { addBooking,updateBooking,getAllBookings,getOneBooking,deleteBooking,getUserBookings} from "../controller/BookingController.js"
 const router = express.Router();
 
 router.get("/verifyAdmin",verifyToken,verifyAdmin);
