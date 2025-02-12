@@ -38,7 +38,9 @@ export const verifyAdmin = async (req, res) => {
     let UserId = req.user.userId;
     try {
         const usr = await UserModel.findOne({ where: { UserId: UserId } })
-        if (usr.RoleId == 1 || usr.RoleId == 2) {
+
+        const role = await RoleModel.findOne({ where: { RoleId: usr.RoleId } })
+        if (role.RoleName== "super admin" || role.RoleName== "admin") {
             const role={
                 RoleId:usr.RoleId
             }
@@ -115,35 +117,30 @@ export const checkUser = async (req, res) => {
 export const getUserData = async (req, res) => {
     let UserId = req.user.userId;
     console.log("User Id", UserId)
-    try {
-        const usr = await UserModel.findOne({ where: { UserId: UserId } })
-        console.log("user: ", usr)
-        if (usr == null) {
-            return res.status(404).json({ message: "User not found" })
-        }
-        return res.status(200).json(usr)
-    }
-    catch (error) {
-        console.log(error)
-        return res.status(500).json({ "error": "Internal server error" })
-    }
+
+    const result = await getUser(UserId);
+    return res.status(result.status).json(result.message || result.data);
 }
 
 //used at edit user to get user for edit its role 
 export const getOneUser = async (req, res) => {
     let { UserId } = req.body;
     console.log("User Id", UserId)
+
+    const result = await getUser(UserId);
+    return res.status(result.status).json(result.message || result.data);
+}
+
+const getUser= async (UserId)=>{
     try {
-        const usr = await UserModel.findOne({ where: { UserId: UserId } })
-        console.log("user: ", usr)
-        if (usr == null) {
-            return res.status(404).json({ message: "User not found" })
+        const usr = await UserModel.findOne({ where: { UserId } });
+        if (!usr) {
+            return { status: 404, message: "User not found" };
         }
-        return res.status(200).json(usr)
-    }
-    catch (error) {
-        console.log(error)
-        return res.status(500).json({ "error": "Internal server error" })
+        return { status: 200, data: usr };
+    } catch (error) {
+        console.log(error);
+        return { status: 500, message: "Internal server error" };
     }
 }
 
@@ -157,7 +154,7 @@ export const addUser = async (req, res) => {
     //add code to automatically generate email and send to the user
     sgMail.setApiKey(process.env.API_KEY);
 
-    const emailBody = await renderEmailTemplateAddUser(password);
+    const emailBody = await renderEmailTemplate(password,'User_Password_Email.ejs');
 
     const message = {
         to: email,
@@ -195,15 +192,6 @@ export const addUser = async (req, res) => {
         return res.status(500).json({ "error": "Internal server error" })
     }
 }
-
-const renderEmailTemplateAddUser = async (password) => {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    const templatePath = path.join(__dirname, 'views', 'User_Password_Email.ejs');
-    const emailBody = await ejs.renderFile(templatePath, { password });
-
-    return emailBody;
-};
 
 //used in profile 
 export const updateUser=async(req,res)=>{
@@ -260,8 +248,6 @@ export const updatePassword=async(req,res)=>{
     }
 }
 
-
-
 //used in edit user
 export const updateUserRights = async (req, res) => {
     let { UserId, UserName, Role } = req.body;
@@ -269,14 +255,9 @@ export const updateUserRights = async (req, res) => {
 
         const role = await RoleModel.findOne({ where: { RoleName: Role } })
 
-        const exsistingUsr = await UserModel.findOne({ where: { UserId: UserId } })
-
         const data = {
             UserName: UserName,
-            RoleId: role.RoleId,
-            email: exsistingUsr.email,
-            password: exsistingUsr.password,
-            PhoneNumber: exsistingUsr.PhoneNumber
+            RoleId: role.RoleId
         }
         console.log("User id to get", UserId);
 
@@ -290,7 +271,7 @@ export const updateUserRights = async (req, res) => {
             const email=exsistingUsr.email;
             sgMail.setApiKey(process.env.API_KEY);
 
-            const emailBody = await renderEmailTemplateUpdateUser({ UserName });
+            const emailBody = await renderEmailTemplate({ UserName },'adminRights.ejs');
         
             const message = {
                 to: email,
@@ -312,14 +293,6 @@ export const updateUserRights = async (req, res) => {
         return res.status(500).json({ "error": "Internal server error" })
     }
 }
-const renderEmailTemplateUpdateUser = async (data) => {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    const templatePath = path.join(__dirname, 'views', 'adminRights.ejs');
-    const emailBody = await ejs.renderFile(templatePath, data);
-
-    return emailBody;
-};
 
 export const deleteUser = async (req, res) => {
     let UserId = req.params.id;
@@ -337,4 +310,12 @@ export const deleteUser = async (req, res) => {
     }
 }
 
+const renderEmailTemplate = async (data,fileName) =>{
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    const templatePath = path.join(__dirname, 'views', fileName);
+    const emailBody = await ejs.renderFile(templatePath, data);
+
+    return emailBody;
+}
 //#endregion

@@ -103,7 +103,7 @@ export const addBooking = async (req, res) => {
                     end_time: end_time,
                     totalPrice: totalPrice,
                 };
-                const emailBody = await renderEmailTemplateAddBooking(bookingData);
+                const emailBody = await renderEmailTemplate(bookingData,'bookingConfirmation.ejs');
 
                 const message = {
                     to: email,
@@ -131,14 +131,6 @@ export const addBooking = async (req, res) => {
     }
 
 }
-const renderEmailTemplateAddBooking = async (data) => {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    const templatePath = path.join(__dirname, 'views', 'bookingConfirmation.ejs');
-    const emailBody = await ejs.renderFile(templatePath, data);
-
-    return emailBody;
-};
 
 //Update Booking
 export const updateBooking = async (req, res) => {
@@ -227,7 +219,7 @@ export const updateBooking = async (req, res) => {
 
 
         sgMail.setApiKey(process.env.API_KEY);
-        const emailBody = await renderEmailTemplateUpdateBooking(bookingData);
+        const emailBody = await renderEmailTemplate(bookingData,'bookingUpdate.ejs');
 
         const message = {
             to: email,
@@ -249,14 +241,6 @@ export const updateBooking = async (req, res) => {
         return res.status(500).json({ "error": "Internal server error" })
     }
 }
-const renderEmailTemplateUpdateBooking = async (data) => {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    const templatePath = path.join(__dirname, 'views', 'bookingUpdate.ejs');
-    const emailBody = await ejs.renderFile(templatePath, data);
-
-    return emailBody;
-};
 
 //For All Booking
 export const getAllBookings = async (req, res) => {
@@ -351,7 +335,7 @@ export const deleteBooking = async (req, res) => {
             totalPrice: booking.totalPrice,
         };
 
-        const emailBody = await renderEmailTemplateDeleteBooking(bookingData);
+        const emailBody = await renderEmailTemplate(bookingData,'bookingCancellation.ejs');
 
         const message = {
             to: email,
@@ -373,15 +357,7 @@ export const deleteBooking = async (req, res) => {
         return res.status(500).json({ "error": "Internal server error" })
     }
 }
-const renderEmailTemplateDeleteBooking = async (data) => {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    const templatePath = path.join(__dirname, 'views', 'bookingCancellation.ejs');
-    const emailBody = await ejs.renderFile(templatePath, data);
-
-    return emailBody;
-};
-
+//getting single user bookings 
 export const getUserBookings = async (req, res) => {
     let UserId = req.user.userId;
     console.log("get bookings with id", UserId)
@@ -421,4 +397,14 @@ const formatDate = async (inputDate) => {
 
     // Return the formatted date in YYYY-MM-DD HH:MM:SS format
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+
+const renderEmailTemplate = async (data,fileName) =>{
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    const templatePath = path.join(__dirname, 'views', fileName);
+    const emailBody = await ejs.renderFile(templatePath, data);
+
+    return emailBody;
 }

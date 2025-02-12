@@ -154,22 +154,7 @@ export const getAvalibleSlots = async (req, res) => {
             },
         });
 
-        // Extract SlotIds from the query result
-        const bookedSlotIds = bookedSlots.map((booking) => booking.SlotId);
-
-        console.log("booked ids", bookedSlotIds)
-        // Query available slots
-        const availableSlots = await SlotModel.findAll({
-            where: {
-                SlotId: {
-                    [Sequelize.Op.notIn]: bookedSlotIds, // Use the extracted SlotIds
-                },
-            },
-        });
-
-        const availableSlotsNames = availableSlots.map((slot) => slot.SlotName)
-        console.log(availableSlotsNames);
-
+        const availableSlotsNames = await getSlots(bookedSlots)
         return res.status(200).json(availableSlotsNames);
     }
     catch (error) {
@@ -219,7 +204,17 @@ export const getAvalibleSlotsInEdit = async (req, res) => {
             },
         });
 
+        const availableSlotsNames = await getSlots(bookedSlots)
+        return res.status(200).json(availableSlotsNames);
+    }
+    catch (error) {
+        console.log(error)
+        return res.status(500).json({ "error": "Internal server error" })
+    }
+}
 
+const getSlots = async (bookedSlots) => {
+ 
         // Extract SlotIds from the query result
         const bookedSlotIds = bookedSlots.map((booking) => booking.SlotId);
 
@@ -235,12 +230,7 @@ export const getAvalibleSlotsInEdit = async (req, res) => {
 
         const availableSlotsNames = availableSlots.map((slot) => slot.SlotName)
         console.log(availableSlotsNames);
-
-        return res.status(200).json(availableSlotsNames);
-    }
-    catch (error) {
-        console.log(error)
-        return res.status(500).json({ "error": "Internal server error" })
-    }
+        return availableSlotsNames;
 }
+
 //#endregion
