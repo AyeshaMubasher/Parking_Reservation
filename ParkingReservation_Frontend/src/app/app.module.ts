@@ -17,6 +17,8 @@ import { EditBookingPageComponent } from './edit-booking-page/edit-booking-page.
 import { EditSlotPageComponent } from './edit-slot-page/edit-slot-page.component';
 import { AddSlotPageComponent } from './add-slot-page/add-slot-page.component';
 import { EditUserPageComponent } from './edit-user-page/edit-user-page.component';
+import { EditProfilePageComponent } from './edit-profile-page/edit-profile-page.component';
+import { ChangePasswordPageComponent } from './change-password-page/change-password-page.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +30,9 @@ import { EditUserPageComponent } from './edit-user-page/edit-user-page.component
     EditBookingPageComponent,
     EditSlotPageComponent,
     AddSlotPageComponent,
-    EditUserPageComponent
+    EditUserPageComponent,
+    EditProfilePageComponent,
+    ChangePasswordPageComponent
   ],
   imports: [
     BrowserModule,

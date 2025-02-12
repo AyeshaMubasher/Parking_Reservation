@@ -8,6 +8,8 @@ import { EditBookingPageComponent } from './edit-booking-page/edit-booking-page.
 import { AddSlotPageComponent } from './add-slot-page/add-slot-page.component';
 import { EditSlotPageComponent } from './edit-slot-page/edit-slot-page.component';
 import { EditUserPageComponent } from './edit-user-page/edit-user-page.component';
+import { EditProfilePageComponent } from './edit-profile-page/edit-profile-page.component';
+import { ChangePasswordPageComponent } from './change-password-page/change-password-page.component';
 
 const routes: Routes = [
   {path:'login',component:LoginPageComponent},
@@ -18,6 +20,8 @@ const routes: Routes = [
   {path: 'addSlot',component:AddSlotPageComponent},
   {path: 'edit-slot/:id',component:EditSlotPageComponent},
   {path: 'edit-user/:id',component:EditUserPageComponent},
+  {path: 'profile',component:EditProfilePageComponent},
+  {path: 'changePassword',component:ChangePasswordPageComponent},
   {path:'',component:LoginPageComponent}
 ];
 

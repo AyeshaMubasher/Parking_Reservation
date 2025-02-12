@@ -33,7 +33,6 @@ export class HomePageComponent {
     this.getBookingData();
   }
 
-
   //#region Bookings
   public getBookingData() {
     if (this.cookie.check("token")) {

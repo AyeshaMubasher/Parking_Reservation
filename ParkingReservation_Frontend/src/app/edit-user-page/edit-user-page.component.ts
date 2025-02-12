@@ -40,6 +40,9 @@ export class EditUserPageComponent {
           'Authorization': `Bearer ${this.tooken}`
         })
         this.http.get(environment.domin + "/verifyAdmin", { headers }).subscribe((res: any) => {
+          if(res.RoleId==2){
+            this.router.navigate(["/home"])
+          }
           this.getUser();
         }, (error) => {
           this.router.navigate(["/home"])
@@ -90,7 +93,7 @@ export class EditUserPageComponent {
         Role: this.editUserForm.value.role
       }
       console.log("data to update", data)
-      this.http.put(environment.domin + '/user/update', data).subscribe((res: any) => {
+      this.http.put(environment.domin + '/user/updateUserRights', data).subscribe((res: any) => {
         console.log(res);
         this.toastr.success("Successfully Updated!")
         this.router.navigate(["/home"])
