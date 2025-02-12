@@ -17,7 +17,7 @@ import { dirname } from 'path';
 export const verifyToken = async (req, res, next) => {
     const token = req.header("Authorization");
     if (!token) {
-        return res.status(401).json({ message: "Access Denied" });
+        return res.status(401).json({ message: "Access Denied"});
     }
     try {
         const decoded = jwt.verify(
@@ -39,7 +39,10 @@ export const verifyAdmin = async (req, res) => {
     try {
         const usr = await UserModel.findOne({ where: { UserId: UserId } })
         if (usr.RoleId == 1 || usr.RoleId == 2) {
-            return res.status(200).json({ message: "This account has admin rights" })
+            const role={
+                RoleId:usr.RoleId
+            }
+            return res.status(200).json(role)
         }
         else {
             return res.status(401).json({ "error": "This is a user account" })
@@ -126,6 +129,7 @@ export const getUserData = async (req, res) => {
     }
 }
 
+//used at edit user to get user for edit its role 
 export const getOneUser = async (req, res) => {
     let { UserId } = req.body;
     console.log("User Id", UserId)
@@ -191,6 +195,7 @@ export const addUser = async (req, res) => {
         return res.status(500).json({ "error": "Internal server error" })
     }
 }
+
 const renderEmailTemplateAddUser = async (password) => {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
@@ -201,14 +206,70 @@ const renderEmailTemplateAddUser = async (password) => {
 };
 
 //used in profile 
-export const updateUser = async (req, res) => {
+export const updateUser=async(req,res)=>{
+    let UserId = req.user.userId;
+
+    let {RoleId, UserName, email, password, PhoneNumber} = req.body
+
+    console.log("request body",req.body)
+    try{
+        const data = {
+            RoleId, UserName, email, password, PhoneNumber
+        }
+        const usr=await UserModel.update(data,{where:{UserId: UserId}})
+        console.log("User id result",usr);
+        if(usr[0]==0){
+            return res.status(404).json({message:"Not found!"})
+        }
+        return res.status(200).json({message:"updated successfully"})
+    }
+    catch(error){
+        console.log(error)
+        return res.status(500).json({"error":"Internal server error"})
+    }
+}
+
+export const updatePassword=async(req,res)=>{
+    let UserId = req.user.userId;
+    let {oldPassword, newPassword } = req.body
+
+    const user = await UserModel.findOne({ where: { UserId: UserId } });
+    const isMatch = await bcrypt.compare(oldPassword, user.password)
+
+    let password = newPassword
+    if(isMatch){
+        password = await bcrypt.hash(password, 10)// password encryption 
+    }
+    else{
+        return res.status(402).json({message:"Incorrect Old password!"})
+    }
+    try{
+        const usr=await UserModel.update(
+            { password: password }, // Only update the password field
+            { where: { UserId } } // Make sure you're targeting the correct user
+          );
+        console.log("User id result",usr);
+        if(usr[0]==0){
+            return res.status(404).json({message:"Not found!"})
+        }
+        return res.status(200).json({message:"Password Successfully Updated"})
+    }
+    catch(error){
+        console.log(error)
+        return res.status(500).json({"error":"Internal server error"})
+    }
+}
+
+
+
+//used in edit user
+export const updateUserRights = async (req, res) => {
     let { UserId, UserName, Role } = req.body;
     try {
 
         const role = await RoleModel.findOne({ where: { RoleName: Role } })
 
         const exsistingUsr = await UserModel.findOne({ where: { UserId: UserId } })
-
 
         const data = {
             UserName: UserName,
@@ -511,8 +572,10 @@ export const getAvalibleSlotsInEdit = async (req, res) => {
 }
 //#endregion
 
-//#region Booking
 
+//#region  Booking
+
+//#endregion
 //Adding Booking
 export const addBooking = async (req, res) => {
     let { SlotName, vehicleNumber, start_time, end_time, totalPrice } = req.body;
@@ -923,7 +986,7 @@ const formatDate = async (inputDate) => {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-//#endregion
+
 
 //#region Role
 
