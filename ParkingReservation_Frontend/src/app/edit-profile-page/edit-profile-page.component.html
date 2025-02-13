@@ -34,6 +34,12 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row gx-3 mb-3">
+                            <div class="col-md-6">
+                              <label class="small mb-1" for="ProfileImage">Profile Image</label>
+                              <input class="form-control" id="ProfileImage" type="file" (change)="onFileSelected($event)">
+                            </div>
+                          </div>
                         <!-- Save changes button-->
                         <button class="btn btn-primary" type="submit" >Save changes</button>
                     </form>

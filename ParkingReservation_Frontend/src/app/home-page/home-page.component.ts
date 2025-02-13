@@ -15,12 +15,14 @@ export class HomePageComponent {
   public tooken: any;
 
   public UserName: any;
+  public profileImageUrl: string = ''; 
   public Role: any;
   public RoleId: any;
   public bookings: any[] = [];
   public users: any[] = [];
   public slots: any[] = [];
   public currentView: 'bookings' | 'users' | 'slots' = 'bookings'; // Default view is 'bookings'
+
 
   constructor(private router: Router, private http: HttpClient, private toastr: ToastrService, private cookie: CookieService) { }
   signOut() {
@@ -45,14 +47,14 @@ export class HomePageComponent {
         console.log("get user responce", res)
         this.UserName = res.UserName;
         this.RoleId = res.RoleId;
-        console.log("Role Id", this.RoleId)
+        this.profileImageUrl = res.profileImageUrl;
+        console.log("Image", this.profileImageUrl)
         const RoleData = {
           RoleId: this.RoleId
         }
         this.http.post(environment.domin + "/getOneRole", RoleData).subscribe((res: any) => {
           //console.log(res)
           this.Role = res.RoleName;
-
           if (this.Role === 'super admin' || this.Role === 'admin') {
             // Fetch initial data for bookings, users, and slots on init
             this.getAllUserdata();

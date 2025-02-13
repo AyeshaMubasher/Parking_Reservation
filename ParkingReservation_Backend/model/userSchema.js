@@ -56,8 +56,11 @@ export const createUserModel=async(sequelize, Role)=>{
                 msg: "Please provide a valid phone number (e.g., +1234567890 or 1234567890)"
               }
             }
+        },
+        profileImageUrl: {  // Store image URL here
+          type: DataTypes.STRING,
+          allowNull: true
         }
-        
     })
 
     // After syncing the models, create a super admin user

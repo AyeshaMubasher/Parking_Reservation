@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../environments/environment.development';
+import { formatDate } from '@angular/common';
 
 @Component({
   selector: 'app-edit-profile-page',
@@ -16,6 +17,8 @@ export class EditProfilePageComponent {
   isFormSubmitted: boolean = false
   public tooken: any; 
   public userData:any;
+  selectedFile: File | null = null; // To hold the selected file
+  currentImage: string = '';         // To store current profile image URL
 
   profileForm : FormGroup = new FormGroup({
     UserName: new FormControl('',[Validators.required]),
@@ -45,11 +48,11 @@ export class EditProfilePageComponent {
      })
      this.http.get(environment.domin+"/user/getUser",{headers}).subscribe((res: any)=>{
        console.log(res)
-       this.userData=res;
        this.profileForm.setValue({
         UserName : res.UserName,
         PhoneNumber: res.PhoneNumber
        });
+       this.currentImage = res.profileImageUrl || 'http://bootdey.com/img/Content/avatar/avatar1.png'; // Use a default image if not available
      })
      }
      else{
@@ -57,30 +60,40 @@ export class EditProfilePageComponent {
      }
    }
 
+   onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input && input.files && input.files[0]) {
+      this.selectedFile = input.files[0];
+    }
+  }
+
    public Update(){
     const isFormValid = this.profileForm.valid;
-    console.log(!isFormValid)
     this.isFormSubmitted = !isFormValid;
-    console.log(this.profileForm.value);
-    this.userData={
-      RoleId:this.userData.RoleId,
-      UserName: this.profileForm.value.UserName,
-      email: this.userData.email,
-      password: this.userData.password,
-      PhoneNumber: this.profileForm.value.PhoneNumber
+
+    if (isFormValid) {
+      const formData = new FormData();
+      formData.append('UserName', this.profileForm.value.UserName);
+      formData.append('PhoneNumber', this.profileForm.value.PhoneNumber);
+
+      // Append the selected image if available
+      if (this.selectedFile) {
+        formData.append('profileImage', this.selectedFile, this.selectedFile.name);
+      }
+
+      console.log("formatedData",formatDate)
+      this.tooken=this.cookie.get("token")
+      console.log("tooken from home ",this.tooken)
+      const headers = new HttpHeaders({
+        'Authorization' : `Bearer ${this.tooken}`
+      })
+      this.http.put(environment.domin+"/user/update",formData,{headers}).subscribe((res: any)=>{
+        console.log(res);
+        this.router.navigate(["/home"])
+        this.toastr.success("Successfully Updated!")
+      },(error)=>{
+        this.toastr.error("Internal server error")
+      })
     }
-    console.log("data to update",this.userData)
-    this.tooken=this.cookie.get("token")
-    console.log("tooken from home ",this.tooken)
-    const headers = new HttpHeaders({
-      'Authorization' : `Bearer ${this.tooken}`
-    })
-    this.http.put(environment.domin+"/user/update",this.userData,{headers}).subscribe((res: any)=>{
-      console.log(res);
-      this.router.navigate(["/home"])
-      this.toastr.success("Successfully Updated!")
-    },(error)=>{
-      this.toastr.error("Internal server error")
-    })
    }
 }

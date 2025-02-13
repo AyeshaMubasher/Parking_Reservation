@@ -12,12 +12,11 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
 
-
 //for verifying token
 export const verifyToken = async (req, res, next) => {
     const token = req.header("Authorization");
     if (!token) {
-        return res.status(401).json({ message: "Access Denied"});
+        return res.status(401).json({ message: "Access Denied" });
     }
     try {
         const decoded = jwt.verify(
@@ -40,9 +39,9 @@ export const verifyAdmin = async (req, res) => {
         const usr = await UserModel.findOne({ where: { UserId: UserId } })
 
         const role = await RoleModel.findOne({ where: { RoleId: usr.RoleId } })
-        if (role.RoleName== "super admin" || role.RoleName== "admin") {
-            const role={
-                RoleId:usr.RoleId
+        if (role.RoleName == "super admin" || role.RoleName == "admin") {
+            const role = {
+                RoleId: usr.RoleId
             }
             return res.status(200).json(role)
         }
@@ -131,7 +130,7 @@ export const getOneUser = async (req, res) => {
     return res.status(result.status).json(result.message || result.data);
 }
 
-const getUser= async (UserId)=>{
+const getUser = async (UserId) => {
     try {
         const usr = await UserModel.findOne({ where: { UserId } });
         if (!usr) {
@@ -154,7 +153,7 @@ export const addUser = async (req, res) => {
     //add code to automatically generate email and send to the user
     sgMail.setApiKey(process.env.API_KEY);
 
-    const emailBody = await renderEmailTemplate(password,'User_Password_Email.ejs');
+    const emailBody = await renderEmailTemplate({ password }, 'User_Password_Email.ejs');
 
     const message = {
         to: email,
@@ -194,57 +193,68 @@ export const addUser = async (req, res) => {
 }
 
 //used in profile 
-export const updateUser=async(req,res)=>{
+export const updateUser = async (req, res) => {
     let UserId = req.user.userId;
 
-    let {RoleId, UserName, email, password, PhoneNumber} = req.body
+    console.log("User Id", UserId)
+    let { UserName, PhoneNumber } = req.body
+    let profileImageUrl = req.body.profileImageUrl;
 
-    console.log("request body",req.body)
-    try{
+    console.log("request body", req.body)
+    try {
+        if (req.file) {
+            profileImageUrl = `http://localhost:8000/uploads/${req.file.filename}`;
+        }
         const data = {
-            RoleId, UserName, email, password, PhoneNumber
+            UserName, PhoneNumber, profileImageUrl
         }
-        const usr=await UserModel.update(data,{where:{UserId: UserId}})
-        console.log("User id result",usr);
-        if(usr[0]==0){
-            return res.status(404).json({message:"Not found!"})
+        const usr = await UserModel.update(
+            {
+                UserName: UserName,
+                PhoneNumber: PhoneNumber,
+                profileImageUrl: profileImageUrl
+            }, // Only update the password field
+            { where: { UserId: UserId } })
+        console.log("User id result", usr);
+        if (usr[0] == 0) {
+            return res.status(404).json({ message: "Not found!" })
         }
-        return res.status(200).json({message:"updated successfully"})
+        return res.status(200).json({ message: "updated successfully" })
     }
-    catch(error){
+    catch (error) {
         console.log(error)
-        return res.status(500).json({"error":"Internal server error"})
+        return res.status(500).json({ "error": "Internal server error" })
     }
 }
 
-export const updatePassword=async(req,res)=>{
+export const updatePassword = async (req, res) => {
     let UserId = req.user.userId;
-    let {oldPassword, newPassword } = req.body
+    let { oldPassword, newPassword } = req.body
 
     const user = await UserModel.findOne({ where: { UserId: UserId } });
     const isMatch = await bcrypt.compare(oldPassword, user.password)
 
     let password = newPassword
-    if(isMatch){
+    if (isMatch) {
         password = await bcrypt.hash(password, 10)// password encryption 
     }
-    else{
-        return res.status(402).json({message:"Incorrect Old password!"})
+    else {
+        return res.status(402).json({ message: "Incorrect Old password!" })
     }
-    try{
-        const usr=await UserModel.update(
+    try {
+        const usr = await UserModel.update(
             { password: password }, // Only update the password field
             { where: { UserId } } // Make sure you're targeting the correct user
-          );
-        console.log("User id result",usr);
-        if(usr[0]==0){
-            return res.status(404).json({message:"Not found!"})
+        );
+        console.log("User id result", usr);
+        if (usr[0] == 0) {
+            return res.status(404).json({ message: "Not found!" })
         }
-        return res.status(200).json({message:"Password Successfully Updated"})
+        return res.status(200).json({ message: "Password Successfully Updated" })
     }
-    catch(error){
+    catch (error) {
         console.log(error)
-        return res.status(500).json({"error":"Internal server error"})
+        return res.status(500).json({ "error": "Internal server error" })
     }
 }
 
@@ -255,24 +265,24 @@ export const updateUserRights = async (req, res) => {
 
         const role = await RoleModel.findOne({ where: { RoleName: Role } })
 
-        const data = {
-            UserName: UserName,
-            RoleId: role.RoleId
-        }
+        const exsistingUsr = await UserModel.findOne({ where: { UserId: UserId } })
+
         console.log("User id to get", UserId);
 
-        console.log("data for update", data)
-        const usr = await UserModel.update(data, { where: { UserId: UserId } })
+        const usr = await UserModel.update(
+            { RoleId: role.RoleId },
+            { where: { UserId } }
+        )
         console.log("User id result", usr);
         if (usr[0] == 0) {
             return res.status(404).json({ message: "Not found!" })
         }
-        if(Role=="admin"){
-            const email=exsistingUsr.email;
+        if (Role == "admin") {
+            const email = exsistingUsr.email;
             sgMail.setApiKey(process.env.API_KEY);
 
-            const emailBody = await renderEmailTemplate({ UserName },'adminRights.ejs');
-        
+            const emailBody = await renderEmailTemplate({ UserName }, 'adminRights.ejs');
+
             const message = {
                 to: email,
                 from: 'ayeshaMubasher28@gmail.com',
@@ -280,7 +290,7 @@ export const updateUserRights = async (req, res) => {
                 text: 'You have been granted Admin Rights!',
                 html: emailBody,
             };
-        
+
             sgMail
                 .send(message)
                 .then((response) => console.log('Admin rights email sent'))
@@ -310,7 +320,7 @@ export const deleteUser = async (req, res) => {
     }
 }
 
-const renderEmailTemplate = async (data,fileName) =>{
+const renderEmailTemplate = async (data, fileName) => {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
     const templatePath = path.join(__dirname, 'views', fileName);

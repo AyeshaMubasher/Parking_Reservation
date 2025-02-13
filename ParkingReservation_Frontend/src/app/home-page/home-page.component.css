@@ -3,7 +3,9 @@ body{margin-top:20px;
     color:#69707a;
     }
     .img-account-profile {
-        height: 10rem;
+        width: 150px;
+        height: 150px;
+        object-fit: cover; /* Ensures the image fits into the circle without distortion */
     }
     .rounded-circle {
         border-radius: 50% !important;
@@ -62,4 +64,6 @@ body{margin-top:20px;
         background-color: blue;
         color: white;
         border-color: blue;
-    }      
+    }   
+    
+    
