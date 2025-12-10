@@ -28,10 +28,19 @@ if (!fs.existsSync(uploadDir)) {
 
 app.use(router)
 
+// Add health check endpoint
+app.get('/health', (req, res) => {
+    res.status(200).json({ 
+        status: 'OK', 
+        message: 'Server is running',
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Export app for external use
 export { app };
 
-const PORT=8000;
+const PORT = process.env.PORT || 8000;
 
 app.listen(PORT,()=>{
     console.log(`Server is running at PORT ${PORT}`)
