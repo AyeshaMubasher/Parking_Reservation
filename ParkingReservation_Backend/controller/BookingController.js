@@ -92,7 +92,7 @@ export const addBooking = async (req, res) => {
                 console.log(data);
                 await BookingModel.create(data);
 
-
+/*
                 sgMail.setApiKey(process.env.API_KEY);
 
                 const bookingData = {
@@ -117,7 +117,7 @@ export const addBooking = async (req, res) => {
                     .send(message)
                     .then((response) => console.log('Email sent'))
                     .catch((error) => console.log(error.message));
-
+*/
                 return res.status(201).json({ message: "Slot added successfully" })
             }
             else {
@@ -160,7 +160,6 @@ export const updateBooking = async (req, res) => {
         else if (start_time >= end_time) {
             return res.status(403).json({ "error": "Invalid End time" })
         }
-
 
         const bookedSlots = await BookingModel.findAll({
             attributes: ['SlotId'],
@@ -217,7 +216,7 @@ export const updateBooking = async (req, res) => {
             totalPrice: totalPrice,
         };
 
-
+/*
         sgMail.setApiKey(process.env.API_KEY);
         const emailBody = await renderEmailTemplate(bookingData,'bookingUpdate.ejs');
 
@@ -233,7 +232,7 @@ export const updateBooking = async (req, res) => {
             .send(message)
             .then((response) => console.log('Email sent'))
             .catch((error) => console.log(error.message));
-
+*/
         return res.status(200).json({ message: "updated successfully" })
     }
     catch (error) {
@@ -323,7 +322,7 @@ export const deleteBooking = async (req, res) => {
         const slot = await SlotModel.findOne({ where: { SlotId: SlotId } })
         const SlotName = slot.SlotName;
 
-
+/*
         sgMail.setApiKey(process.env.API_KEY);
 
         const bookingData = {
@@ -349,7 +348,7 @@ export const deleteBooking = async (req, res) => {
             .send(message)
             .then((response) => console.log('Email sent'))
             .catch((error) => console.log(error.message));
-
+*/
         return res.status(200).json({ message: "deleted successfully" })
     }
     catch (error) {

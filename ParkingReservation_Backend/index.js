@@ -5,6 +5,8 @@ import cors from 'cors'
 import path from "path"
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import multer from 'multer';
+import fs from "fs"
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -15,7 +17,19 @@ app.use(cors())
 
 console.log("path--------------------->",path.join(__dirname,'view', 'uploads'))
 app.use('/uploads', express.static(path.join(__dirname,'view', 'uploads')));
+
+// Check if the 'uploads' directory exists, if not, create it
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+    console.log('Uploads directory created.');
+}
+
+
 app.use(router)
+
+// Export app for external use
+export { app };
 
 const PORT=8000;
 

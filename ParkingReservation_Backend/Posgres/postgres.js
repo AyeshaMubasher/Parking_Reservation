@@ -5,9 +5,30 @@ import { createRolesModel} from "../model/roleSchema.js";
 import { createUserModel} from "../model/userSchema.js";
 import { createSlotModel} from "../model/slotSchema.js";
 import { createBookingModel} from "../model/bookingSchema.js";
+
+/*
 const sequelize = new Sequelize(process.env.DATABASE, process.env.USER_NAME, process.env.PASSWORD, {
     host: process.env.Host,
     dialect: 'postgres'
+  });
+*/
+
+  // Updated: Use DATABASE_URL for Supabase connection
+  const sequelize = new Sequelize(process.env.DATABASE_URL, {
+      dialect: 'postgres',
+      dialectOptions: {
+          ssl: {
+              require: true,
+              rejectUnauthorized: false 
+          }
+      },
+      logging: false, // Set to console.log to see SQL queries
+      pool: {
+          max: 5,
+          min: 0,
+          acquire: 30000,
+          idle: 10000
+      }
   });
 
   let RoleModel=null;
@@ -27,18 +48,16 @@ const sequelize = new Sequelize(process.env.DATABASE, process.env.USER_NAME, pro
         BookingModel= await createBookingModel(sequelize)
         await sequelize.sync();
 
-        console.log("UserModel",UserModel);
+        //console.log("UserModel",UserModel);
 
-    console.log('Database synchronized');
+        console.log('Database synchronized');
 
-    RoleModel.hasMany(UserModel, {foreignKey: 'RoleId'})
-    UserModel.belongsTo(RoleModel, { foreignKey: 'RoleId' });
-    UserModel.hasMany(BookingModel, { foreignKey: 'UserId' });
-    SlotModel.hasMany(BookingModel, { foreignKey: 'SlotId' });
-    BookingModel.belongsTo(SlotModel, { foreignKey: 'SlotId' });
-    
-
-
+        RoleModel.hasMany(UserModel, {foreignKey: 'RoleId'})
+        UserModel.belongsTo(RoleModel, { foreignKey: 'RoleId' });
+        UserModel.hasMany(BookingModel, { foreignKey: 'UserId' });
+        SlotModel.hasMany(BookingModel, { foreignKey: 'SlotId' });
+        BookingModel.belongsTo(SlotModel, { foreignKey: 'SlotId' });
+        
         console.log("Database Synced")
       } catch (error) {
         console.error('Unable to connect to the database:', error);

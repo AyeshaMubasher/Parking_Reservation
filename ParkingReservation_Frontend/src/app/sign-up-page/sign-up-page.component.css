@@ -1,0 +1,153 @@
+/* Component host should fill viewport */
+:host {
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Section fills viewport and centers content */
+section {
+  height: 100vh !important;
+  overflow: hidden !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Remove card overflow - NO SCROLL */
+.card {
+  max-height: 95vh;
+  overflow: hidden !important;
+}
+
+/* Remove body overflow - NO SCROLL */
+.card-body {
+  overflow: hidden !important;
+  max-height: 95vh;
+}
+
+/* Ensure form content fits */
+form {
+  overflow: hidden;
+}
+
+/* Make form controls much smaller */
+.form-control-lg {
+  padding: 0.35rem 0.75rem !important;
+  font-size: 0.9rem !important;
+  height: 38px !important;
+  line-height: 1.2 !important;
+}
+
+/* Make labels smaller and tighter */
+.form-label {
+  font-size: 0.85rem;
+  margin-bottom: 0.15rem;
+  line-height: 1.1;
+}
+
+/* Reduce overall line height */
+input.form-control-lg {
+  line-height: 1 !important;
+}
+
+/* Reduce spacing in form elements */
+.form-control {
+  line-height: 1.2 !important;
+}
+
+/* Reduce button size */
+.btn-lg {
+  padding: 0.6rem 1rem !important;
+  font-size: 1rem !important;
+  min-height: 25px !important;
+  line-height: 0.7;
+}
+
+/* Very tight spacing between form fields */
+.form-outline {
+  margin-bottom: 0.3rem !important;
+}
+
+/* Even tighter spacing when showing errors */
+.form-outline:has(.text-danger) {
+  margin-bottom: 0.25rem !important;
+}
+
+/* Style error messages - very compact */
+.text-danger {
+  font-size: 0.7rem !important;
+  margin-top: 0.1rem !important;
+  line-height: 1.1 !important;
+  display: block;
+}
+
+/* Smaller heading with tight spacing */
+.h1 {
+  font-size: 2.2rem !important;
+  line-height: 1.1 !important;
+  margin-bottom: 0.3rem !important;
+}
+
+/* Reduce icon size */
+.fa-2x {
+  font-size: 1.3em !important;
+}
+
+/* Reduce heading container spacing */
+.d-flex.align-items-center {
+  margin-bottom: 0.3rem !important;
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 576px) {
+  .h1 {
+    font-size: 1.3rem !important;
+  }
+  
+  .form-control-lg {
+    font-size: 0.85rem !important;
+    padding: 0.3rem 0.6rem !important;
+    height: 35px !important;
+  }
+  
+  .btn-lg {
+    padding: 0.5rem 0.8rem !important;
+    font-size: 0.9rem !important;
+    min-height: 40px !important;
+  }
+  
+  .card {
+    border-radius: 0.5rem !important;
+  }
+  
+  .form-outline {
+    margin-bottom: 0.25rem !important;
+  }
+  
+  .card-body {
+    padding: 1.2rem !important;
+  }
+  
+  .text-danger {
+    font-size: 0.65rem !important;
+  }
+}
+
+/* Tablet adjustments */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1.5rem !important;
+  }
+  
+  section {
+    padding: 0.5rem 0;
+  }
+}
+
+/* Remove image border radius on mobile */
+@media (max-width: 767px) {
+  .img-fluid {
+    border-radius: 1rem 1rem 0 0 !important;
+  }
+}

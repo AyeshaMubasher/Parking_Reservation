@@ -12,23 +12,10 @@ import cors from 'cors';
 
 const router = express.Router();
 
-const app = express();
 
 // Get the directory name from the current file
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-// Use CORS to allow requests from the frontend (running on localhost:4200)
-const corsOptions = {
-    origin: 'http://localhost:4200', // Allow requests from the frontend
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-};
-
-app.use(cors(corsOptions));  // Enable CORS with the configured options
-
-// Add this line to serve files in the 'uploads' directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Check if the 'uploads' directory exists, if not, create it
 const uploadDir = path.join(__dirname, 'uploads');
@@ -47,14 +34,6 @@ const storage = multer.diskStorage({
     }
 });
 const upload = multer({ storage: storage }).single('profileImage');
-
-/*
-app.get('/uploads/:image', (req, res) => {
-    console.log("Uploads calling");
-    const image = req.params.image;
-    res.sendFile(path.join(__dirname, 'uploads', image));
-  });
-  */
 
 router.put("/user/update", verifyToken, upload, updateUser);
 

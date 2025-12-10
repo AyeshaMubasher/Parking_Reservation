@@ -1,0 +1,132 @@
+/* Component host should fill viewport */
+:host {
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Section fills viewport and centers content */
+section {
+  height: 100vh !important;
+  overflow: hidden !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Remove card overflow that creates scrollbar */
+.card {
+  max-height: 90vh;
+  overflow: hidden !important;
+}
+
+/* Remove body overflow */
+.card-body {
+  overflow: hidden !important;
+  max-height: 90vh;
+  padding-top: 1rem !important;
+}
+
+/* Ensure form content fits */
+form {
+  overflow: hidden;
+}
+
+/* Make form controls smaller */
+.form-control-lg {
+  padding: 0.5rem 1rem !important;
+  font-size: 1rem !important;
+  height: calc(1.5em + 1rem + 2px) !important;
+}
+
+/* Make labels smaller */
+.form-label {
+  font-size: 0.95rem;
+  margin-bottom: 0.3rem;
+}
+
+/* Reduce button size */
+.btn-lg {
+  padding: 0.85rem 1.5rem !important;
+  font-size: 1.1rem !important;
+  min-height: 30px !important;
+  line-height: 0.5;
+}
+
+/* Tighter spacing between form fields */
+.form-outline {
+  margin-bottom: 0.8rem !important;
+}
+
+/* Increase heading size */
+.h1 {
+  font-size: 2.5rem !important;
+}
+
+/* Smaller subheading */
+h5 {
+  font-size: 1.1rem !important;
+}
+
+/* Reduce icon size */
+.fa-2x {
+  font-size: 1.5em !important;
+}
+
+/* Center content better */
+.d-flex.align-items-center {
+  margin-top: 0 !important;
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 576px) {
+  .h1 {
+    font-size: 1.8rem !important;
+  }
+  
+  h5 {
+    font-size: 1rem !important;
+  }
+  
+  .form-control-lg {
+    font-size: 0.9rem !important;
+    padding: 0.4rem 0.8rem !important;
+  }
+  
+  .btn-lg {
+    padding: 0.55rem 0.9rem !important;
+    font-size: 0.95rem !important;
+  }
+  
+  .card {
+    border-radius: 0.5rem !important;
+  }
+  
+  .form-outline {
+    margin-bottom: 0.6rem !important;
+  }
+  
+  .card-body {
+    padding: 1.5rem !important;
+    padding-top: 0.8rem !important;
+  }
+}
+
+/* Tablet adjustments */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 2rem !important;
+    padding-top: 1.2rem !important;
+  }
+  
+  section {
+    padding: 1rem 0;
+  }
+}
+
+/* Remove image border radius on mobile */
+@media (max-width: 767px) {
+  .img-fluid {
+    border-radius: 1rem 1rem 0 0 !important;
+  }
+}

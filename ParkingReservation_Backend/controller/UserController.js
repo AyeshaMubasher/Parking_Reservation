@@ -146,11 +146,12 @@ const getUser = async (UserId) => {
 //use in register
 export const addUser = async (req, res) => {
     console.log(req.body);
-    let { UserName, email, PhoneNumber } = req.body;
+    let { UserName, email, PhoneNumber, password } = req.body;
 
-    let password = ((Math.floor(Math.random() * (9999 - 1000) + 1)) + 1000) + "";
+    //let password = ((Math.floor(Math.random() * (9999 - 1000) + 1)) + 1000) + "";
     console.log(password)
     //add code to automatically generate email and send to the user
+    /*
     sgMail.setApiKey(process.env.API_KEY);
 
     const emailBody = await renderEmailTemplate({ password }, 'User_Password_Email.ejs');
@@ -167,8 +168,7 @@ export const addUser = async (req, res) => {
         .send(message)
         .then((response) => console.log('Email sent'))
         .catch((error) => console.log(error.message));
-
-
+    */
 
     password = await bcrypt.hash(password, 10)// password encryption 
 
@@ -258,11 +258,12 @@ export const updatePassword = async (req, res) => {
     }
 }
 
-//used in edit user
+//used in edit user 
 export const updateUserRights = async (req, res) => {
-    let { UserId, UserName, Role } = req.body;
-    try {
 
+    let { UserId, UserName, Role } = req.body;
+
+    try {
         const role = await RoleModel.findOne({ where: { RoleName: Role } })
 
         const exsistingUsr = await UserModel.findOne({ where: { UserId: UserId } })
@@ -273,10 +274,13 @@ export const updateUserRights = async (req, res) => {
             { RoleId: role.RoleId },
             { where: { UserId } }
         )
+
         console.log("User id result", usr);
+
         if (usr[0] == 0) {
             return res.status(404).json({ message: "Not found!" })
         }
+        /*
         if (Role == "admin") {
             const email = exsistingUsr.email;
             sgMail.setApiKey(process.env.API_KEY);
@@ -296,6 +300,7 @@ export const updateUserRights = async (req, res) => {
                 .then((response) => console.log('Admin rights email sent'))
                 .catch((error) => console.log(error.message));
         }
+        */
         return res.status(200).json({ message: "updated successfully" })
     }
     catch (error) {

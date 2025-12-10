@@ -13,8 +13,6 @@ import { environment } from '../../environments/environment.development';
   styleUrl: './sign-up-page.component.css',
 })
 
-
-
 export class SignUpPageComponent  {
 
   isFormSubmitted: boolean = false
@@ -23,7 +21,8 @@ export class SignUpPageComponent  {
     this.signUpForm = new FormGroup({
       UserName: new FormControl("",[Validators.required]),
       PhoneNumber: new FormControl("",[Validators.pattern(/^\+?\d{10,15}$/)]),
-      email: new FormControl("",[Validators.required,Validators.email])
+      email: new FormControl("",[Validators.required,Validators.email]),
+      password: new FormControl("",[Validators.required])
     });
    }
 
