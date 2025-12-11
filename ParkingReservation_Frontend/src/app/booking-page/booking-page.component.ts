@@ -4,7 +4,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../environments/environment';
 import { debounceTime, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { startTimeGreaterThanCurrentTime } from './Validators';

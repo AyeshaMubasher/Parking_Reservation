@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../environments/environment';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({

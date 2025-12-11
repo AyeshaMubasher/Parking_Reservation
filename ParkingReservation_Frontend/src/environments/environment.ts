@@ -1,3 +1,3 @@
 export const environment = {
-    domin:"http://localhost:8000"
+     domin: "https://parking-backend-wh6v.onrender.com"
 };
